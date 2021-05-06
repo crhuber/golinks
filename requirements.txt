@@ -3,6 +3,6 @@ Flask-WTF==0.14.2
 Flask-SqlAlchemy==2.4.0
 Flask-Migrate==2.5.2
 Flask-Restful==0.3.7
-Flask-CORS==3.0.8
+Flask-CORS==3.0.9
 PyMySQL==0.9.3
 gunicorn==19.9.0
