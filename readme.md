@@ -54,8 +54,14 @@ Run
 golinks serve
 ```
 
+### Run At Startup (Work In Progress)
 To run as an Agent on boot for mac edit and copy the `io.intra.golinks.plist` file to `~/Library/LaunchAgents`  directory.
 See [launchd.info](https://www.launchd.info/)
+
+```
+launchctl load ~/Library/LaunchAgents/io.intra.golinks.plist
+launchctl start io.intra.golinks
+```
 
 ### Docker
 
