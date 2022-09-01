@@ -2,5 +2,3 @@ builds:
   - env:
     - GO111MODULE=on
     - CGO_ENABLED=1  # go-sqlite3 requires cgo to work
-    goos:
-      - darwin
