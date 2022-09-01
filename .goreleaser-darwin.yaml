@@ -5,3 +5,5 @@ builds:
     - darwin
     goarch:
     - amd64
+checksum:
+  disable: true

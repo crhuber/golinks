@@ -15,3 +15,5 @@ builds:
       goarch: amd64
       env:
       - CC=gcc
+checksum:
+  disable: true
