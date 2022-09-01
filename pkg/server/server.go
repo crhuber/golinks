@@ -4,11 +4,18 @@ import (
 	"crhuber/golinks/pkg/controllers"
 	"crhuber/golinks/pkg/database"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/gorilla/mux"
 )
 
 func NewRouter(db *database.DbConnection) *mux.Router {
+
+	// serve static files relative to binary
+	exePath, _ := os.Executable()
+	exeDir := filepath.Dir(exePath)
+	staticPath := filepath.Join(exeDir, "static")
 
 	// link controller takes in a pointer to the db
 	ac := controllers.NewAppController(db)
@@ -30,7 +37,7 @@ func NewRouter(db *database.DbConnection) *mux.Router {
 	router.HandleFunc("/api/v1/tag/{id}", ac.UpdateTag).Methods("PATCH")
 	//
 	router.HandleFunc("/healthz", ac.Health)
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(staticPath))))
 	router.HandleFunc("/favicon.ico", ac.HandleFavicon)
 	router.HandleFunc("/{keyword}", ac.GetKeyword).Methods("GET")
 	router.HandleFunc("/{keyword}/{subkey}", ac.GetKeyword).Methods("GET")
