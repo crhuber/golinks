@@ -10,15 +10,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func NewRouter(db *database.DbConnection) *mux.Router {
+func NewRouter(db *database.DbConnection, staticPath string) *mux.Router {
 
-	// serve static files relative to binary
+	// serve static files relative to location of executable path
 	exePath, _ := os.Executable()
 	exeDir := filepath.Dir(exePath)
-	staticPath := filepath.Join(exeDir, "static")
-
+	staticPath = filepath.Join(exeDir, staticPath)
 	// link controller takes in a pointer to the db
-	ac := controllers.NewAppController(db)
+	ac := controllers.NewAppController(db, staticPath)
 
 	router := mux.NewRouter().StrictSlash(true)
 	// routes links

@@ -46,7 +46,7 @@ func ServeCmd() *cobra.Command {
 				Debug: false,
 			})
 
-			router := server.NewRouter(dbConn)
+			router := server.NewRouter(dbConn, srvCfg.StaticPath)
 			log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", srvCfg.Port), cors.Handler(router)))
 			return nil
 		},

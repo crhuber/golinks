@@ -4,10 +4,12 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 func (c *AppController) HandleHome(w http.ResponseWriter, r *http.Request) {
-	indexFile, err := os.Open("./static/index.html")
+	index := filepath.Join(c.staticPath, "index.html")
+	indexFile, err := os.Open(index)
 	if err != nil {
 		io.WriteString(w, "error reading index")
 		return
@@ -18,12 +20,13 @@ func (c *AppController) HandleHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *AppController) HandleFavicon(w http.ResponseWriter, r *http.Request) {
-	indexFile, err := os.Open("./static/favicon.ico")
+	favicon := filepath.Join(c.staticPath, "favicon.ico")
+	faviconFile, err := os.Open(favicon)
 	if err != nil {
 		io.WriteString(w, "error reading favicon")
 		return
 	}
-	defer indexFile.Close()
+	defer faviconFile.Close()
 
-	io.Copy(w, indexFile)
+	io.Copy(w, faviconFile)
 }
