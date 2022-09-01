@@ -3,5 +3,3 @@ builds:
     - CGO_ENABLED=1  # go-sqlite3 requires cgo to work
     goos:
       - darwin
-    goarch:
-      - amd64
