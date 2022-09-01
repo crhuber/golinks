@@ -1,0 +1,7 @@
+*.db
+.idea
+.env
+*.sqllite.db
+/data
+/tmp
+todo.txt

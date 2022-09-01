@@ -1,0 +1,244 @@
+<!doctype html>
+
+<title>Links</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
+
+<head>
+  <title>Links</title>
+</head>
+
+<body>
+  <div id="app">
+    <h2>Links ({{ links.length }})</h2>
+    <input placeholder="Search" @keyUp="handleSearch" v-model="searchInput" />
+    <table class="primary">
+      <thead>
+        <tr>
+          <th><button @click="onClickSort('keyword')">Keyword</button></th>
+          <th><button @click="onClickSort('destination')">Destination</button></th>
+          <th><button @click="onClickSort('description')">Description</button></th>
+          <th><button @click="onClickSort('views')">Views</button></th>
+          <th><button @click="onClickSort('tags')">Tags</button></th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="link in links">
+          <td><h3><span class="label">{{link.keyword}}</span></h3></td>
+          <td>
+            <a :href="link.destination">{{link.destination}}</a>
+          </td>
+          <td>{{link.description}}</td>
+          <td>{{link.views}}</td>
+          <td>
+            <label v-for="tag in link.tags">
+              <span class="label success">{{tag.name}}</span>
+            </label>
+          </td>
+          <td><label class="button" @click="editLink(link.id)" for="modal_1">Edit</label></td>
+        </tr>
+      </tbody>
+    </table>
+    <label for="modal_1" class="button" @click="newLink">New Link</label>
+
+    <div class="modal">
+      <input id="modal_1" type="checkbox" />
+      <label for="modal_1" class="overlay"></label>
+      <article>
+        <header>
+          <h3>Link</h3>
+          <label for="modal_1" class="close">&times;</label>
+        </header>
+        <section class="content">
+          <fieldset class="flex two">
+            <label><input type="text" placeholder="keyword" v-model="link.keyword"></label>
+            <label><input type="text" placeholder="destination" v-model="link.destination"></label>
+          </fieldset>
+          <fieldset class="flex">
+            <label><input type="text" placeholder="description" v-model="link.description"></label>
+          </fieldset>
+          <fieldset>
+            <label><input type="text" placeholder="tags" v-model="newTagName"></label>
+            <button @click="appendTag">+</button>
+            <label v-for="tag in link.tags">
+              <span class="label">{{tag.name}}</span>
+            </label>
+          </fieldset>
+        </section>
+        <footer>
+          <button for="modal_1" @click="saveLink(link.id)">
+            Save
+          </button>
+          <button for="modal_1" class="error" @click="deleteLink(link.id)">
+            Delete
+          </button>
+        </footer>
+      </article>
+    </div>
+  </div>
+</body>
+<script src="https://unpkg.com/vue@3"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+  const { createApp } = Vue
+
+  createApp({
+    data() {
+      return {
+        links: [],
+        link: {
+          id: '',
+          keyword: '',
+          destination: '',
+          description: '',
+          tags: [],
+        },
+        newTagName: '',
+        searchInput: '',
+        sortAscending: false,
+      }
+    },
+    methods: {
+      handleSearch() {
+        const trimmedInput = this.searchInput.trim();
+        if (trimmedInput === '') {
+          this.getData()
+          return
+        }
+        const kw = trimmedInput.toLowerCase();
+        function matches(s) {
+          return s.toString().toLowerCase().includes(kw);
+        }
+
+        this.links = this.links.filter(link => {
+          for (const [key, value] of Object.entries(link)) {
+            if (Array.isArray(value)) {
+              for (const it of value) {
+                // search tags
+                if (matches(it.name)) {
+                  return true;
+                }
+              }
+            } else {
+              if (matches(value)) {
+                return true;
+              }
+            }
+          }
+
+          return false;
+        });
+      },
+      appendTag() {
+        const newTag = {
+          name: this.newTagName
+        }
+        this.link.tags.push(newTag)
+        this.newTagName = ''
+      },
+      editLink(id) {
+        this.link = {}
+        const link = this.links.find(c => c.id === id);
+        this.link = link
+      },
+      onClickSort(sortBy) {
+        this.links.sort(function compare(a, b) {
+            // default sort by
+            if (a[sortBy] < b[sortBy]) {
+              return 1
+            }
+            if (a[sortBy] > b[sortBy]) {
+              return -1
+            }
+            return 0
+
+        });
+        if (this.sortAscending === true) {
+          this.links.reverse()
+
+        }
+        // toggle
+        this.sortAscending = !this.sortAscending
+      },
+      getData() {
+        var path = "http://localhost:8080/api/v1/links";
+        const config = {
+          method: "GET",
+        };
+        axios
+          .get(path, config)
+          .then((response) => {
+            this.links = response.data;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      },
+      emptyNewLink(){
+          // empty all values
+          this.link.id = ""
+          this.link.description = ""
+          this.link.keyword = ""
+          this.link.destination = ""
+          this.link.tags = []
+
+      },
+      newLink(){
+        this.emptyNewLink()
+      },
+      saveLink(id) {
+        data = this.link
+        if (id === undefined || id === '') {
+          var path = "http://localhost:8080/api/v1/links";
+          axios
+            .post(path, data)
+            .then((response) => {
+              document.getElementById('modal_1').checked = false; // close modal
+              this.getData()
+              this.emptyNewLink()
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        } else {
+          var path = "http://localhost:8080/api/v1/link/" + id
+          axios
+            .patch(path, data)
+            .then((response) => {
+              document.getElementById('modal_1').checked = false; // close modal
+              this.getData()
+              this.emptyNewLink()
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }
+      },
+      deleteLink(id) {
+          var path = "http://localhost:8080/api/v1/link/" + id
+          axios
+            .delete(path)
+            .then((response) => {
+              document.getElementById('modal_1').checked = false; // close modal
+              this.getData()
+              this.emptyNewLink()
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }
+    },
+    mounted() {
+      this.getData()
+      const initialSearchInput = new URLSearchParams(window.location.search).get('q');
+        if (initialSearchInput) {
+            this.searchInput = decodeURIComponent(initialSearchInput)
+            this.handleSearch()
+        }
+    }
+  }).mount('#app')
+</script>
+
+</html>
