@@ -61,6 +61,8 @@ See [launchd.info](https://www.launchd.info/)
 ```
 launchctl load ~/Library/LaunchAgents/io.intra.golinks.plist
 launchctl start io.intra.golinks
+tail -f /tmp/golinks.log
+tail -f /private/var/log/com.apple.xpc.launchd/launchd.log
 ```
 
 ### Docker
@@ -100,7 +102,9 @@ Search Domains:
     Create short links that inject variables by using `{*}`. For example: `gh/{*}` to link to `https://github.com/{*}`.
     So when a user types `gh/torvalds` the `{*}` will be replaced and the browser will be redirected to `https://github.com/torvalds`
 
+## Troubleshooting
 
+- If you change the port of the API. Be sure that you change the frontend index.html to connect to the same port
 
 ## Developing
 
