@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-	<dict>
-		<key>Label</key>
-		<string>io.intra.golinks</string>
-		<key>ProgramArguments</key>
-		<array>
-			<string>/Users/username/scripts/golinks</string>
-			<string>serve</string>
-		</array>
-		<key>RunAtLoad</key>
-		<true/>
-		<key>Sockets</key>
-		<dict>
-			<key>Listeners</key>
-			<dict>
-				<key>SockServiceName</key>
-				<string>8080</string>
-				<key>SockType</key>
-				<string>stream</string>
-				<key>SockFamily</key>
-				<string>IPv4</string>
-			</dict>
-		</dict>
-	</dict>
+<dict>
+	<key>Label</key>
+	<string>io.intra.golinks</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>GOLINKS_DB</key>
+        <string>/Users/username/.golinks/golinks.db</string>
+        <key>GOLINKS_PORT</key>
+        <string>8998</string>
+    </dict>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/username/scripts/golinks</string>
+		<string>serve</string>
+	</array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StandardErrorPath</key>
+    <string>/tmp/golinks.log</string>
+    <key>StandardOutPath</key>
+    <string>/tmp/golinks.log</string>
+</dict>
 </plist>
