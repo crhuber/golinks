@@ -55,19 +55,31 @@ func (c *AppController) GetLink(w http.ResponseWriter, r *http.Request) {
 func (c *AppController) GetLinks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	var order string
-	order = r.URL.Query().Get("order")
-	if order == "" {
+	var sort string
+	var qs models.QueryString
+	inputOrder := r.URL.Query().Get("order")
+	inputSort := r.URL.Query().Get("sort")
+
+	if inputOrder == "" {
 		order = "desc"
 	}
 
-	var sort string
-	sort = r.URL.Query().Get("sort")
-	if sort == "" {
+	if inputSort == "" {
 		sort = "updated_at"
 	}
 
+	qs.Sort = sort
+	qs.Order = order
+
+	err := qs.Validate()
+	if err != nil {
+		log.Error("Error validating querystring fields")
+		JsonError(w, err, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	links := models.Links{}
-	c.db.Db.Preload("Tags").Order(fmt.Sprintf("%s %s", sort, order)).Find(&links)
+	c.db.Db.Preload("Tags").Order(fmt.Sprintf("%s %s", qs.Sort, qs.Order)).Find(&links)
 	json.NewEncoder(w).Encode(links)
 }
 

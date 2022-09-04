@@ -53,4 +53,16 @@ func (li *LinkInput) ToNative() Link {
 	}
 }
 
+type QueryString struct {
+	Sort  string
+	Order string
+}
+
+func (qs QueryString) Validate() error {
+	return validation.ValidateStruct(&qs,
+		validation.Field(&qs.Sort, validation.Match(regexp.MustCompile(`^([a-zA-Z]+)`))),
+		validation.Field(&qs.Order, validation.Match(regexp.MustCompile(`^([a-zA-Z]+)`))),
+	)
+}
+
 type Links []Link
