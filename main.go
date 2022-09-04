@@ -6,7 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var version = "0.0.2"
+var version = "0.0.3"
 
 func main() {
 	rootCmd := cmd.RootCmd(version)
