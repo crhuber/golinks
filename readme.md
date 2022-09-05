@@ -54,7 +54,7 @@ Run
 golinks serve
 ```
 
-### Run At Startup (Work In Progress)
+### Run At Startup
 To run as an Agent on boot for mac edit and copy the `io.intra.golinks.plist` file to `~/Library/LaunchAgents`  directory.
 See [launchd.info](https://www.launchd.info/)
 
@@ -88,6 +88,42 @@ System Preferences>Network>Advanced>DNS>Search Domains:
 ```
 Search Domains:
 .internal
+```
+
+### Port Redirection Setup
+
+If you have a local instance of golinks running on your machine, you will need to append the port everytime you want to use golinks in the browser
+ie: `go:8080/foo` which is not ideal. To get around this we can run a few hacks.
+
+Create an alias for 127.0.0.2 to point to loopback:
+
+```
+sudo ifconfig lo0 alias 127.0.0.2
+```
+
+Create a port forwarding rule to forward traffic destined for `127.0.0.2:80` to be redirected to local golinks on port 8080
+
+```
+echo "rdr pass inet proto tcp from any to 127.0.0.2 port 80 -> 127.0.0.1 port 8998" | sudo pfctl -ef -
+```
+
+Edit hosts file to modify go.internal to point to 127.0.0.2
+
+
+```bash
+127.0.0.2       go.internal
+```
+
+Display current port forwarding
+
+```
+sudo pfctl -s nat
+```
+
+Remove port forwarding
+
+```
+sudo pfctl -F all -f /etc/pf.conf
 ```
 
 ## FAQ
