@@ -101,6 +101,12 @@ Create an alias for 127.0.0.2 to point to loopback:
 sudo ifconfig lo0 alias 127.0.0.2
 ```
 
+To persist this after reboot, edit and copy `io.intra.ifconfig.plist` to system `LaunchDaemons`
+
+```
+sudo cp io.intra.ifconfig.plist  /Library/LaunchDaemons/
+```
+
 Create a port forwarding rule to forward traffic destined for `127.0.0.2:80` to be redirected to local golinks on port 8080
 
 ```
@@ -108,7 +114,6 @@ echo "rdr pass inet proto tcp from any to 127.0.0.2 port 80 -> 127.0.0.1 port 80
 ```
 
 Edit hosts file to modify go.internal to point to 127.0.0.2
-
 
 ```bash
 127.0.0.2       go.internal
