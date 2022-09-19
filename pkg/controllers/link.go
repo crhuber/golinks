@@ -25,6 +25,7 @@ type AppController struct {
 
 // convienince method to return a pointer to a AppController
 func NewAppController(db *database.DbConnection, staticPath string) *AppController {
+	log.Info(fmt.Sprintf("Static path: %v", staticPath))
 	// takes in a db
 	return &AppController{
 		db:         db,

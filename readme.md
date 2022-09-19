@@ -54,6 +54,26 @@ Run
 golinks serve
 ```
 
+Use the following flags to configure database, port and static folder
+
+```
+Flags:
+  -d, --db string       DB DSN or SQLLite location path. (default "./data/golinks.db")
+  -t, --dbtype string   Database type (default "sqllite")
+  -h, --help            help for serve
+  -p, --port int        Port to run Application server on (default 8080)
+  -s, --static string   Directory where static files live (default "./static/")
+```
+
+All the flags can also be set via environment variables
+
+```
+GOLINKS_DB
+GOLINKS_DBTYPE
+GOLINKS_PORT
+GOLINKS_STATIC
+```
+
 ### Run At Startup
 To run as an Agent on boot for mac edit and copy the `io.intra.golinks.plist` file to `~/Library/LaunchAgents`  directory.
 See [launchd.info](https://www.launchd.info/)
