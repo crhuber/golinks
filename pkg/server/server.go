@@ -3,21 +3,30 @@ package server
 import (
 	"crhuber/golinks/pkg/controllers"
 	"crhuber/golinks/pkg/database"
+	"embed"
+	"io/fs"
+	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/gorilla/mux"
 )
 
-func NewRouter(db *database.DbConnection, staticPath string) *mux.Router {
+// This "go:embed" directive tells Go to embed static/* (recursively),
+// and make it accessible as the staticFS variable.
 
-	// serve static files relative to location of executable path
-	exePath, _ := os.Executable()
-	exeDir := filepath.Dir(exePath)
-	staticPath = filepath.Join(exeDir, staticPath)
+//go:embed static/*
+var staticFS embed.FS
+
+func NewRouter(db *database.DbConnection) *mux.Router {
+
+	// server files from static folder
+	serverRoot, err := fs.Sub(staticFS, "static")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// link controller takes in a pointer to the db
-	ac := controllers.NewAppController(db, staticPath)
+	ac := controllers.NewAppController(db)
 
 	router := mux.NewRouter().StrictSlash(true)
 	// routes links
@@ -36,10 +45,8 @@ func NewRouter(db *database.DbConnection, staticPath string) *mux.Router {
 	router.HandleFunc("/api/v1/tag/{id}", ac.UpdateTag).Methods("PATCH")
 	//
 	router.HandleFunc("/healthz", ac.Health)
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(staticPath))))
-	router.HandleFunc("/favicon.ico", ac.HandleFavicon)
 	router.HandleFunc("/{keyword}", ac.GetKeyword).Methods("GET")
 	router.HandleFunc("/{keyword}/{subkey}", ac.GetKeyword).Methods("GET")
-	router.HandleFunc("/", ac.HandleHome)
+	router.PathPrefix("/").Handler(http.FileServer(http.FS(serverRoot)))
 	return router
 }

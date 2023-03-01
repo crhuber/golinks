@@ -30,7 +30,6 @@ RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -
 
 # Copy the binary to the production image from the builder stage.
 COPY --from=builder /app/golinks /app/golinks
-COPY --from=builder /app/static/ /app/static/
 
 # Create and change to the app directory.
 WORKDIR /app

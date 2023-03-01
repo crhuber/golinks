@@ -27,7 +27,6 @@ func ServeCmd() *cobra.Command {
 
 			// get flags
 			port := viper.GetInt("port")
-			staticDir := viper.GetString("static")
 			dbDSN := viper.GetString("db")
 			dbType := viper.GetString("dbtype")
 
@@ -54,7 +53,7 @@ func ServeCmd() *cobra.Command {
 				Debug: false,
 			})
 
-			router := server.NewRouter(dbConn, staticDir)
+			router := server.NewRouter(dbConn)
 			log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), cors.Handler(router)))
 			return nil
 		},
@@ -63,11 +62,9 @@ func ServeCmd() *cobra.Command {
 	serveCmd.PersistentFlags().IntP("port", "p", 8080, "Port to run Application server on")
 	serveCmd.PersistentFlags().StringP("db", "d", "./data/golinks.db", "DB DSN or SQLLite location path.")
 	serveCmd.PersistentFlags().StringP("dbtype", "t", "sqllite", "Database type")
-	serveCmd.PersistentFlags().StringP("static", "s", "./static/", "Directory containing static files")
 	// bind flags
 	viper.BindPFlag("port", serveCmd.PersistentFlags().Lookup("port"))
 	viper.BindPFlag("db", serveCmd.PersistentFlags().Lookup("db"))
-	viper.BindPFlag("static", serveCmd.PersistentFlags().Lookup("static"))
 	viper.BindPFlag("dbtype", serveCmd.PersistentFlags().Lookup("dbtype"))
 	return serveCmd
 }

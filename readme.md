@@ -45,9 +45,6 @@ export GOLINKS_DB="user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTim
 
 ### Run
 
-Copy the `static` and `static/index.html` folder/files to a location in the same directory as the golinks binary
-
-
 Run
 
 ```bash
@@ -62,7 +59,6 @@ Flags:
   -t, --dbtype string   Database type (default "sqllite")
   -h, --help            help for serve
   -p, --port int        Port to run Application server on (default 8080)
-  -s, --static string   Directory where static files live (default "./static/")
 ```
 
 All the flags can also be set via environment variables
@@ -71,7 +67,6 @@ All the flags can also be set via environment variables
 GOLINKS_DB
 GOLINKS_DBTYPE
 GOLINKS_PORT
-GOLINKS_STATIC
 ```
 
 ### Run At Startup

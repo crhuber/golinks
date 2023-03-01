@@ -19,17 +19,14 @@ type jsonErr struct {
 }
 
 type AppController struct {
-	db         *database.DbConnection // save pointer to gormDB
-	staticPath string                 // path to serve static content from
+	db *database.DbConnection // save pointer to gormDB
 }
 
 // convienince method to return a pointer to a AppController
-func NewAppController(db *database.DbConnection, staticPath string) *AppController {
-	log.Info(fmt.Sprintf("Static path: %v", staticPath))
+func NewAppController(db *database.DbConnection) *AppController {
 	// takes in a db
 	return &AppController{
-		db:         db,
-		staticPath: staticPath,
+		db: db,
 	}
 }
 
