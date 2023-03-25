@@ -45,6 +45,7 @@ func NewRouter(db *database.DbConnection) *mux.Router {
 	router.HandleFunc("/api/v1/tag/{id}", ac.UpdateTag).Methods("PATCH")
 	//
 	router.HandleFunc("/healthz", ac.Health)
+	router.PathPrefix("/favicon.ico").Handler(http.FileServer(http.FS(serverRoot)))
 	router.HandleFunc("/{keyword}", ac.GetKeyword).Methods("GET")
 	router.HandleFunc("/{keyword}/{subkey}", ac.GetKeyword).Methods("GET")
 	router.PathPrefix("/").Handler(http.FileServer(http.FS(serverRoot)))
