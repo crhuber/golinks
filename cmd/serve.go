@@ -59,7 +59,7 @@ func ServeCmd() *cobra.Command {
 		},
 	}
 	// set flags
-	serveCmd.PersistentFlags().IntP("port", "p", 8080, "Port to run Application server on")
+	serveCmd.PersistentFlags().IntP("port", "p", 8998, "Port to run Application server on")
 	serveCmd.PersistentFlags().StringP("db", "d", "./data/golinks.db", "DB DSN or SQLLite location path.")
 	serveCmd.PersistentFlags().StringP("dbtype", "t", "sqllite", "Database type")
 	// bind flags

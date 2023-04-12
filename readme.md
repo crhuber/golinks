@@ -58,7 +58,7 @@ Flags:
   -d, --db string       DB DSN or SQLLite location path. (default "./data/golinks.db")
   -t, --dbtype string   Database type (default "sqllite")
   -h, --help            help for serve
-  -p, --port int        Port to run Application server on (default 8080)
+  -p, --port int        Port to run Application server on (default 8998)
 ```
 
 All the flags can also be set via environment variables
@@ -85,7 +85,7 @@ tail -f /private/var/log/com.apple.xpc.launchd/launchd.log
 Build image and run
 ```
 docker build . -t crhuber/golinks:latest
-docker run -p 8080:8080 crhuber/golinks
+docker run -p 8998:8998 crhuber/golinks
 ```
 
 ### DNS Setup
@@ -108,7 +108,7 @@ Search Domains:
 ### Port Redirection Setup
 
 If you have a local instance of golinks running on your machine, you will need to append the port everytime you want to use golinks in the browser
-ie: `go:8080/foo` which is not ideal. To get around this we can run a few hacks.
+ie: `go:8998/foo` which is not ideal. To get around this we can run a few hacks.
 
 Create an alias for 127.0.0.2 to point to loopback:
 
@@ -122,10 +122,10 @@ To persist this after reboot, edit and copy `io.intra.ifconfig.plist` to system 
 sudo cp io.intra.ifconfig.plist  /Library/LaunchDaemons/
 ```
 
-Create a port forwarding rule to forward traffic destined for `127.0.0.2:80` to be redirected to local golinks on port 8080
+Create a port forwarding rule to forward traffic destined for `127.0.0.2:80` to be redirected to local golinks on port 8998
 
 ```
-echo "rdr pass inet proto tcp from any to 127.0.0.2 port 80 -> 127.0.0.1 port 8080" | sudo pfctl -ef -
+echo "rdr pass inet proto tcp from any to 127.0.0.2 port 80 -> 127.0.0.1 port 8998" | sudo pfctl -ef -
 ```
 
 Edit hosts file to modify go.internal to point to 127.0.0.2
@@ -150,7 +150,7 @@ sudo pfctl -F all -f /etc/pf.conf
 
 * How can I see all the links available
 
-    http://go:8080/
+    http://go:8998/
 
 
 * How do programmatic links work?
@@ -173,7 +173,7 @@ Just run
 watching .
 building...
 running...
-INFO[0000] Starting server on port :8080
+INFO[0000] Starting server on port :8998
 ```
 
 ## Roadmap

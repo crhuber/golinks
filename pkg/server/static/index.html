@@ -163,7 +163,7 @@
         this.sortAscending = !this.sortAscending
       },
       getData() {
-        var path = "http://localhost:8080/api/v1/links";
+        var path = "http://localhost:8998/api/v1/links";
         const config = {
           method: "GET",
         };
@@ -191,7 +191,7 @@
       saveLink(id) {
         data = this.link
         if (id === undefined || id === '') {
-          var path = "http://localhost:8080/api/v1/links";
+          var path = "http://localhost:8998/api/v1/links";
           axios
             .post(path, data)
             .then((response) => {
@@ -203,7 +203,7 @@
               console.log(error);
             });
         } else {
-          var path = "http://localhost:8080/api/v1/link/" + id
+          var path = "http://localhost:8998/api/v1/link/" + id
           axios
             .patch(path, data)
             .then((response) => {
@@ -217,7 +217,7 @@
         }
       },
       deleteLink(id) {
-          var path = "http://localhost:8080/api/v1/link/" + id
+          var path = "http://localhost:8998/api/v1/link/" + id
           axios
             .delete(path)
             .then((response) => {
