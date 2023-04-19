@@ -90,11 +90,15 @@ docker run -p 8998:8998 crhuber/golinks
 
 ### DNS Setup
 
+* The automatic way: use [dev-proxy](https://github.com/crhuber/dev-proxy)
+
+* The manual way:
+
 Add a host record to point to your golinks server.
 If running locally,  edit your local hostfile:`sudo nano /etc/hosts`
 
 ```bash
-127.0.0.1       go.internal
+127.0.0.2       go.internal
 ```
 
 Add the host suffix to your search domains.
@@ -106,6 +110,10 @@ Search Domains:
 ```
 
 ### Port Redirection Setup
+
+* The automatic way: use [dev-proxy](https://github.com/crhuber/dev-proxy)
+
+* The manual way:
 
 If you have a local instance of golinks running on your machine, you will need to append the port everytime you want to use golinks in the browser
 ie: `go:8998/foo` which is not ideal. To get around this we can run a few hacks.
