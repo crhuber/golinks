@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"
 )
 
 // anything of type tag controller has these functions available
 func (c *AppController) GetTag(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	params := mux.Vars(r)
+	id := chi.URLParam(r, "id")
 	tag := models.Tag{}
-	err := c.db.Db.First(&tag, params["id"]).Error
+	err := c.db.Db.First(&tag, id).Error
 	if err != nil {
 		JsonError(w, err, http.StatusNotFound, "Not Found")
 		return
@@ -46,9 +46,9 @@ func (c *AppController) CreateTag(w http.ResponseWriter, r *http.Request) {
 
 func (c *AppController) UpdateTag(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	params := mux.Vars(r)
+	id := chi.URLParam(r, "id")
 	tag := models.Tag{}
-	err := c.db.Db.First(&tag, params["id"]).Error
+	err := c.db.Db.First(&tag, id).Error
 	if err != nil {
 		JsonError(w, err, http.StatusNotFound, "Not Found")
 		return
@@ -60,9 +60,9 @@ func (c *AppController) UpdateTag(w http.ResponseWriter, r *http.Request) {
 
 func (c *AppController) DeleteTag(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	params := mux.Vars(r)
+	id := chi.URLParam(r, "id")
 	tag := models.Tag{}
-	err := c.db.Db.Unscoped().Delete(&tag, params["id"]).Error
+	err := c.db.Db.Unscoped().Delete(&tag, id).Error
 	if err != nil {
 		// If we didn't find it, 404
 		JsonError(w, err, http.StatusNotFound, "Not Found")

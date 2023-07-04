@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -40,9 +40,9 @@ func JsonError(w http.ResponseWriter, err error, status int, text string) {
 // anything of type link controller has these functions available
 func (c *AppController) GetLink(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	params := mux.Vars(r)
+	id := chi.URLParam(r, "id")
 	link := models.Link{}
-	err := c.db.Db.Preload("Tags").First(&link, params["id"]).Error
+	err := c.db.Db.Preload("Tags").First(&link, id).Error
 	if err != nil {
 		JsonError(w, err, http.StatusNotFound, "Not Found")
 		return
@@ -138,7 +138,7 @@ func (c *AppController) CreateLink(w http.ResponseWriter, r *http.Request) {
 
 func (c *AppController) UpdateLink(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	params := mux.Vars(r)
+	id := chi.URLParam(r, "id")
 	ic := models.LinkInput{}
 	json.NewDecoder(r.Body).Decode(&ic)
 
@@ -164,7 +164,7 @@ func (c *AppController) UpdateLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	oldLink := models.Link{}
-	err = c.db.Db.First(&oldLink, params["id"]).Error
+	err = c.db.Db.First(&oldLink, id).Error
 	if err != nil {
 		JsonError(w, err, http.StatusNotFound, "Not Found")
 		return
@@ -193,9 +193,9 @@ func (c *AppController) UpdateLink(w http.ResponseWriter, r *http.Request) {
 
 func (c *AppController) DeleteLink(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	params := mux.Vars(r)
+	id := chi.URLParam(r, "id")
 	link := models.Link{}
-	err := c.db.Db.Unscoped().Delete(&link, params["id"]).Error
+	err := c.db.Db.Unscoped().Delete(&link, id).Error
 	if err != nil {
 		// If we didn't find it, 404
 		JsonError(w, err, http.StatusNotFound, "Not Found")

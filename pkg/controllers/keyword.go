@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -16,12 +16,12 @@ func (c *AppController) updateViewCount(link *models.Link) {
 }
 
 func (c *AppController) GetKeyword(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
 	link := models.Link{}
-	keyword := params["keyword"]
+	keyword := chi.URLParam(r, "keyword")
+	subkey := chi.URLParam(r, "subkey")
 	// hack to match urls like foo/bar work
-	if params["subkey"] != "" {
-		keyword = fmt.Sprintf("%s/%s", keyword, params["subkey"])
+	if subkey != "" {
+		keyword = fmt.Sprintf("%s/%s", keyword, subkey)
 	}
 	err := c.db.Db.First(&link, "keyword = ?", keyword).Error
 	if err != nil {
