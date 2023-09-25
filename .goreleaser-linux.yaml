@@ -15,5 +15,7 @@ builds:
       goarch: amd64
       env:
       - CC=gcc
+    ldflags:
+      - -s -w
 checksum:
   disable: true

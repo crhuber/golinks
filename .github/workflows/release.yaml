@@ -18,7 +18,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.16.x
+          go-version: 1.21.x
       - name: Install cross-compiler for linux/arm64
         run: sudo apt-get -y install gcc-aarch64-linux-gnu
       - name: Run GoReleaser
@@ -38,7 +38,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.16.x
+          go-version: 1.21.x
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v3.1.0
         with:
