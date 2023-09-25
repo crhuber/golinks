@@ -6,7 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var version = "0.0.9"
+var version = "0.0.10"
 
 func main() {
 	// Log as JSON instead of the default ASCII formatter.
