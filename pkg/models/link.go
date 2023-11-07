@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"regexp"
 	"strings"
 	"time"
@@ -30,6 +31,14 @@ type Link struct {
 	Tags        []Tag        `json:"tags" gorm:"many2many:link_tags;"`
 }
 
+func hasScheme(value interface{}) error {
+	s, _ := value.(string)
+	if !(strings.HasPrefix(s, "http:")) || !(strings.HasPrefix(s, "https:")) {
+		return errors.New("requires scheme http or https")
+	}
+	return nil
+}
+
 // TODO Put in validation for programtic links gh/%s
 func (l LinkInput) Validate() error {
 	return validation.ValidateStruct(&l,
@@ -40,7 +49,11 @@ func (l LinkInput) Validate() error {
 			validation.Length(1, 100),
 			validation.NotIn("api", "static", "directory", "healthz", "favicon.ico"),
 			validation.Match(regexp.MustCompile(`^([a-zA-Z0-9\-\/]+)`))),
-		validation.Field(&l.Destination, validation.Required, is.URL),
+		validation.Field(&l.Destination,
+			validation.Required,
+			is.URL,
+			validation.By(hasScheme),
+		),
 	)
 }
 
