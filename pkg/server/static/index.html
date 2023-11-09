@@ -66,6 +66,9 @@
             </label>
           </fieldset>
         </section>
+        <section v-for="error in errors">
+        <span class="label warning">{{error}}</span>
+        </section>
         <footer>
           <button for="modal_1" @click="saveLink(link.id)">
             Save
@@ -98,6 +101,7 @@
         newTagName: '',
         searchInput: '',
         sortAscending: false,
+        errors: [],
       }
     },
     methods: {
@@ -200,6 +204,7 @@
               this.emptyNewLink()
             })
             .catch((error) => {
+              this.errors.push(error.response.data.text)
               console.log(error);
             });
         } else {
