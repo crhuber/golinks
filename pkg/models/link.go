@@ -33,7 +33,7 @@ type Link struct {
 
 func hasScheme(value interface{}) error {
 	s, _ := value.(string)
-	if !(strings.HasPrefix(s, "http:")) || !(strings.HasPrefix(s, "https:")) {
+	if !(strings.HasPrefix(s, "http:") || strings.HasPrefix(s, "https:")) {
 		return errors.New("requires scheme http or https")
 	}
 	return nil
