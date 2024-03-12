@@ -3,10 +3,10 @@ package controllers
 import (
 	"crhuber/golinks/pkg/models"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	log "github.com/sirupsen/logrus"
 )
 
 // anything of type tag controller has these functions available
@@ -36,7 +36,7 @@ func (c *AppController) CreateTag(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&tag)
 	err := tag.Validate()
 	if err != nil {
-		log.Error("Error validating fields")
+		slog.Error("error validating fields", slog.Any("error", err))
 		JsonError(w, err, http.StatusBadRequest, err.Error())
 		return
 	}
