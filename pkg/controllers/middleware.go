@@ -1,19 +1,18 @@
 package controllers
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
-	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 func (ac *AppController) LogRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		escapedUrl := strings.Replace(r.URL.String(), "\n", "", -1)
-		escapedUrl = strings.Replace(escapedUrl, "\r", "", -1)
-		logString := fmt.Sprintf("%v %v %v", r.RemoteAddr, r.Method, escapedUrl)
-		log.Info(logString)
+		slog.Info(
+			"request",
+			slog.String("remote", r.RemoteAddr),
+			slog.String("method", r.Method),
+			slog.String("path", r.URL.Path),
+		)
 		next.ServeHTTP(w, r)
 	})
 }

@@ -3,11 +3,11 @@ package controllers
 import (
 	"crhuber/golinks/pkg/models"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	log "github.com/sirupsen/logrus"
 )
 
 func (c *AppController) updateViewCount(link *models.Link) {
@@ -26,7 +26,7 @@ func (c *AppController) GetKeyword(w http.ResponseWriter, r *http.Request) {
 	err := c.db.Db.First(&link, "keyword = ?", keyword).Error
 	if err != nil {
 		// handle programatic links
-		log.Info("keyword not found  in exact match. trying wildcard")
+		slog.Info("keyword not found  in exact match. trying wildcard")
 		keywordParts := strings.Split(keyword, "/")
 		err := c.db.Db.First(&link, "keyword = ?", fmt.Sprintf("%s/{*}", keywordParts[0])).Error
 		if err != nil {
