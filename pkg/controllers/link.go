@@ -5,12 +5,12 @@ import (
 	"crhuber/golinks/pkg/models"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	log "github.com/sirupsen/logrus"
 )
 
 type jsonErr struct {
@@ -71,7 +71,7 @@ func (c *AppController) GetLinks(w http.ResponseWriter, r *http.Request) {
 
 	err := qs.Validate()
 	if err != nil {
-		log.Error("Error validating querystring fields")
+		slog.Error("Error validating querystring fields")
 		JsonError(w, err, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -89,7 +89,7 @@ func (c *AppController) CreateLink(w http.ResponseWriter, r *http.Request) {
 
 	err := ic.Validate()
 	if err != nil {
-		log.Error("Error validating fields:" + err.Error())
+		slog.Error("error validating fields", slog.Any("error", err))
 		JsonError(w, err, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -113,7 +113,7 @@ func (c *AppController) CreateLink(w http.ResponseWriter, r *http.Request) {
 	link := ic.ToNative()
 	err = c.db.Db.Create(&link).Error
 	if err != nil {
-		log.Error("Error saving link to db")
+		slog.Error("error saving link to db")
 		JsonError(w, err, http.StatusBadRequest, "error saving link to db. keywords must be unique")
 		return
 	}
@@ -126,7 +126,7 @@ func (c *AppController) CreateLink(w http.ResponseWriter, r *http.Request) {
 		// create a new tag if it doesnt already exist
 		err = c.db.Db.Table("tags").First(&tag, "name = ?", tag.Name).Error
 		if err != nil {
-			log.Info("Tag not found, creating a new one")
+			slog.Info("Tag not found, creating a new one")
 			c.db.Db.Create(&tag)
 		}
 		tags = append(tags, tag)
@@ -144,7 +144,7 @@ func (c *AppController) UpdateLink(w http.ResponseWriter, r *http.Request) {
 
 	err := ic.Validate()
 	if err != nil {
-		log.Error("Error validating fields")
+		slog.Error("error validating fields")
 		JsonError(w, err, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -181,7 +181,7 @@ func (c *AppController) UpdateLink(w http.ResponseWriter, r *http.Request) {
 		// create a new tag if it doesnt already exist
 		err = c.db.Db.Table("tags").First(&tag, "name = ?", tag.Name).Error
 		if err != nil {
-			log.Info("Tag not found, creating a new one")
+			slog.Info("Tag not found, creating a new one")
 			c.db.Db.Create(&tag)
 		}
 		tags = append(tags, tag)

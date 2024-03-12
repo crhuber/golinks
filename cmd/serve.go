@@ -4,11 +4,11 @@ import (
 	"crhuber/golinks/pkg/database"
 	"crhuber/golinks/pkg/server"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
 	"github.com/rs/cors"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -40,8 +40,10 @@ func ServeCmd() *cobra.Command {
 				return err
 			}
 
-			log.Info(fmt.Sprintf("Starting server on port: %v", port))
-			log.Info(fmt.Sprintf("Db type: %v", dbType))
+			slog.Info("starting server",
+				slog.Int("port", port),
+				slog.String("dbType", dbType),
+			)
 
 			// Add CORS support
 			cors := cors.New(cors.Options{
@@ -54,7 +56,10 @@ func ServeCmd() *cobra.Command {
 			})
 
 			router := server.NewRouter(dbConn)
-			log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), cors.Handler(router)))
+			if err := http.ListenAndServe(fmt.Sprintf(":%v", port), cors.Handler(router)); err != nil {
+				slog.Error("error", slog.Any("error", err))
+				return err
+			}
 			return nil
 		},
 	}

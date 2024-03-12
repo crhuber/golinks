@@ -2,18 +2,18 @@ package main
 
 import (
 	"crhuber/golinks/cmd"
-
-	log "github.com/sirupsen/logrus"
+	"log/slog"
+	"os"
 )
 
 var version = "0.0.11"
 
 func main() {
-	// Log as JSON instead of the default ASCII formatter.
-	log.SetFormatter(&log.JSONFormatter{})
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 	rootCmd := cmd.RootCmd(version)
 
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatal(err)
+		slog.Error("error", slog.Any("error", err))
 	}
 }
