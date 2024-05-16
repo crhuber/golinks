@@ -16,6 +16,6 @@ builds:
       env:
       - CC=gcc
     ldflags:
-      - -s -w
+      - -s -w -X main.Version={{.Version}}
 checksum:
   disable: true

@@ -7,6 +7,6 @@ builds:
     - amd64
     - arm64
     ldflags:
-      - -s -w
+      - -s -w -X main.Version={{.Version}}
 checksum:
   disable: true

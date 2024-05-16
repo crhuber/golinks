@@ -6,12 +6,12 @@ import (
 	"os"
 )
 
-var version = "0.0.13"
+var Version = "dev"
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
-	rootCmd := cmd.RootCmd(version)
+	rootCmd := cmd.RootCmd(Version)
 
 	if err := rootCmd.Execute(); err != nil {
 		slog.Error("error", slog.Any("error", err))
