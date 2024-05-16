@@ -13,11 +13,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type jsonErr struct {
-	Code int    `json:"code"`
-	Text string `json:"text"`
-}
-
 type AppController struct {
 	db *database.DbConnection // save pointer to gormDB
 }
@@ -30,16 +25,8 @@ func NewAppController(db *database.DbConnection) *AppController {
 	}
 }
 
-func JsonError(w http.ResponseWriter, err error, status int, text string) {
-	w.WriteHeader(http.StatusBadRequest)
-	if err := json.NewEncoder(w).Encode(jsonErr{Code: status, Text: text}); err != nil {
-		panic(err)
-	}
-}
-
 // anything of type link controller has these functions available
 func (c *AppController) GetLink(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	id := chi.URLParam(r, "id")
 	link := models.Link{}
 	err := c.db.Db.Preload("Tags").First(&link, id).Error
@@ -51,7 +38,6 @@ func (c *AppController) GetLink(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *AppController) GetLinks(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	var order string
 	var sort string
 	var qs models.QueryString
@@ -78,12 +64,10 @@ func (c *AppController) GetLinks(w http.ResponseWriter, r *http.Request) {
 
 	links := models.Links{}
 	c.db.Db.Preload("Tags").Order(fmt.Sprintf("%s %s", qs.Sort, qs.Order)).Find(&links)
-	json.NewEncoder(w).Encode(links)
+	JsonResponse(w, links)
 }
 
 func (c *AppController) CreateLink(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
 	ic := models.LinkInput{}
 	json.NewDecoder(r.Body).Decode(&ic)
 
@@ -133,11 +117,10 @@ func (c *AppController) CreateLink(w http.ResponseWriter, r *http.Request) {
 	}
 	// append tags
 	c.db.Db.Model(&link).Association("Tags").Append(&tags)
-	json.NewEncoder(w).Encode(link)
+	JsonResponse(w, link)
 }
 
 func (c *AppController) UpdateLink(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	id := chi.URLParam(r, "id")
 	ic := models.LinkInput{}
 	json.NewDecoder(r.Body).Decode(&ic)
@@ -188,11 +171,10 @@ func (c *AppController) UpdateLink(w http.ResponseWriter, r *http.Request) {
 	}
 	// append tags
 	c.db.Db.Model(&oldLink).Association("Tags").Replace(&tags)
-	json.NewEncoder(w).Encode(oldLink)
+	JsonResponse(w, oldLink)
 }
 
 func (c *AppController) DeleteLink(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	id := chi.URLParam(r, "id")
 	link := models.Link{}
 	err := c.db.Db.Unscoped().Delete(&link, id).Error
@@ -201,7 +183,7 @@ func (c *AppController) DeleteLink(w http.ResponseWriter, r *http.Request) {
 		JsonError(w, err, http.StatusNotFound, "Not Found")
 		return
 	}
-	json.NewEncoder(w).Encode("Link Deleted")
+	JsonResponse(w, "Link Deleted")
 }
 
 func (c *AppController) Health(w http.ResponseWriter, r *http.Request) {
@@ -212,7 +194,6 @@ func (c *AppController) Health(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *AppController) SearchTags(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	input := r.URL.Query().Get("qs")
 	if input == "" {
 		JsonError(w, nil, http.StatusBadRequest, "query string is required")
@@ -220,5 +201,5 @@ func (c *AppController) SearchTags(w http.ResponseWriter, r *http.Request) {
 	}
 	links := models.Links{}
 	c.db.Db.Preload("Tags").Limit(10).Where("keyword LIKE ?", fmt.Sprintf("%v%%", input)).Find(&links)
-	json.NewEncoder(w).Encode(links)
+	JsonResponse(w, links)
 }

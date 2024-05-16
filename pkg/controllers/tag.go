@@ -11,7 +11,6 @@ import (
 
 // anything of type tag controller has these functions available
 func (c *AppController) GetTag(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	id := chi.URLParam(r, "id")
 	tag := models.Tag{}
 	err := c.db.Db.First(&tag, id).Error
@@ -23,15 +22,12 @@ func (c *AppController) GetTag(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *AppController) GetTags(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	tags := []models.Tag{}
 	c.db.Db.Find(&tags)
 	json.NewEncoder(w).Encode(tags)
 }
 
 func (c *AppController) CreateTag(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
 	tag := models.Tag{}
 	json.NewDecoder(r.Body).Decode(&tag)
 	err := tag.Validate()
@@ -41,11 +37,10 @@ func (c *AppController) CreateTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.db.Db.Create(&tag)
-	json.NewEncoder(w).Encode(tag)
+	JsonResponse(w, tag)
 }
 
 func (c *AppController) UpdateTag(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	id := chi.URLParam(r, "id")
 	tag := models.Tag{}
 	err := c.db.Db.First(&tag, id).Error
@@ -55,11 +50,10 @@ func (c *AppController) UpdateTag(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewDecoder(r.Body).Decode(&tag)
 	c.db.Db.Save(&tag)
-	json.NewEncoder(w).Encode(tag)
+	JsonResponse(w, tag)
 }
 
 func (c *AppController) DeleteTag(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	id := chi.URLParam(r, "id")
 	tag := models.Tag{}
 	err := c.db.Db.Unscoped().Delete(&tag, id).Error
@@ -68,5 +62,5 @@ func (c *AppController) DeleteTag(w http.ResponseWriter, r *http.Request) {
 		JsonError(w, err, http.StatusNotFound, "Not Found")
 		return
 	}
-	json.NewEncoder(w).Encode("Tag Deleted")
+	JsonResponse(w, "Tag Deleted")
 }

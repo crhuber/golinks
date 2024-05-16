@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/rs/cors"
 	"github.com/spf13/cobra"
@@ -56,7 +57,15 @@ func ServeCmd() *cobra.Command {
 			})
 
 			router := server.NewRouter(dbConn)
-			if err := http.ListenAndServe(fmt.Sprintf(":%v", port), cors.Handler(router)); err != nil {
+
+			srv := &http.Server{
+				Addr:         fmt.Sprintf(":%v", port),
+				Handler:      cors.Handler(router),
+				ReadTimeout:  5 * time.Second,
+				WriteTimeout: 10 * time.Second,
+			}
+
+			if err := srv.ListenAndServe(); err != nil {
 				slog.Error("error", slog.Any("error", err))
 				return err
 			}
