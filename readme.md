@@ -39,7 +39,7 @@ export GOLINKS_DB="/Users/username/.golinks/golinks.db"
 You can also use postgres or mysql database using a valid DSN like:
 
 ```bash
-export GOLINKS_DB_TYPE="mysql"
+export GOLINKS_DBTYPE="mysql"
 export GOLINKS_DB="user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
 ```
 
