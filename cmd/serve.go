@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"crhuber/golinks/pkg/database"
-	"crhuber/golinks/pkg/server"
+	"crhuber/golinks/pkg/router"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -56,7 +56,7 @@ func ServeCmd() *cobra.Command {
 				Debug: false,
 			})
 
-			router := server.NewRouter(dbConn)
+			router := router.NewRouter(dbConn)
 
 			srv := &http.Server{
 				Addr:         fmt.Sprintf(":%v", port),
