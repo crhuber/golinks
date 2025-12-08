@@ -7,13 +7,13 @@
     <key>EnvironmentVariables</key>
     <dict>
         <key>GOLINKS_DB</key>
-        <string>/Users/username/.golinks/golinks.db</string>
+        <string>$HOME/.golinks/golinks.db</string>
         <key>GOLINKS_PORT</key>
         <string>8998</string>
     </dict>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Users/username/scripts/golinks</string>
+		<string>$HOME/scripts/golinks</string>
 		<string>serve</string>
 	</array>
     <key>RunAtLoad</key>

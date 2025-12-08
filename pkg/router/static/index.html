@@ -1,81 +1,425 @@
 <!doctype html>
-
-<title>Links</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
-
+<html lang="en">
 <head>
   <title>Links</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
+  <style>
+    :root {
+      --border-radius: 8px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --spacing-lg: 2rem;
+      --spacing-md: 1.5rem;
+      --spacing-sm: 1rem;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #fafafa;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1a202c;
+      padding: 0;
+      margin: 0;
+    }
+
+    #app {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--spacing-lg);
+    }
+
+    .header {
+      padding: 0.75rem 0;
+      margin-bottom: 1.5rem;
+    }
+
+    .header h1 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1a202c;
+    }
+
+    .header p {
+      margin: 0;
+      color: #718096;
+      font-size: 0.875rem;
+    }
+
+    .search-bar {
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--border-radius);
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .table-container {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+      margin-bottom: var(--spacing-md);
+    }
+
+    table.primary {
+      margin: 0;
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table.primary thead {
+      background: white;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    table.primary thead th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #1a202c;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    table.primary thead th button {
+      background: none;
+      border: none;
+      color: #1a202c;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.2s;
+    }
+
+    table.primary thead th button:hover {
+      color: #3b82f6;
+    }
+
+    table.primary tbody tr {
+      border-bottom: 1px solid #e2e8f0;
+      transition: background-color 0.2s;
+    }
+
+    table.primary tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    table.primary tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    table.primary tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+    }
+
+    table.primary tbody td h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    table.primary a {
+      color: #3b82f6;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    table.primary a:hover {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+
+    .label {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      background: #e0e7ff;
+      color: #3730a3;
+      border: none;
+    }
+
+    .label.success {
+      background: #d1fae5;
+      color: #065f46;
+      margin-right: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .button, button, label.button {
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #1a202c;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .button:hover, button:hover, label.button:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .button.primary {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+
+    .button.primary:hover {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+
+    .button.error {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+    }
+
+    .button.error:hover {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+
+    .modal .overlay {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal article {
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid #e2e8f0;
+      max-width: 600px;
+    }
+
+    .modal header {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    .modal header h3 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1a202c;
+    }
+
+    .modal .content {
+      padding: var(--spacing-md);
+    }
+
+    .modal footer {
+      padding: var(--spacing-md);
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    fieldset {
+      border: none;
+      padding: 0;
+      margin-bottom: 1rem;
+    }
+
+    fieldset label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    fieldset input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--border-radius);
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    fieldset input[type="text"]:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .label.warning {
+      background: #fef3c7;
+      color: #92400e;
+      display: block;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--border-radius);
+    }
+
+    .new-link-btn {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+    }
+
+    .new-link-btn:hover {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+
+    .tag-input-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+
+    .tag-input-container input {
+      flex: 1;
+    }
+
+    .tag-input-container button {
+      padding: 0.75rem 1rem;
+      flex-shrink: 0;
+    }
+
+    .tags-display {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+  </style>
 </head>
 
 <body>
   <div id="app">
-    <h2>Links ({{ links.length }})</h2>
-    <input placeholder="Search" @keyUp="handleSearch" v-model="searchInput" />
-    <table class="primary">
-      <thead>
-        <tr>
-          <th><button @click="onClickSort('keyword')">Keyword</button></th>
-          <th><button @click="onClickSort('destination')">Destination</button></th>
-          <th><button @click="onClickSort('description')">Description</button></th>
-          <th><button @click="onClickSort('views')">Views</button></th>
-          <th><button @click="onClickSort('tags')">Tags</button></th>
-          <th>Edit</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="link in links">
-          <td><h3><span class="label">{{link.keyword}}</span></h3></td>
-          <td>
-            <a :href="link.destination">{{link.destination}}</a>
-          </td>
-          <td>{{link.description}}</td>
-          <td>{{link.views}}</td>
-          <td>
-            <label v-for="tag in link.tags">
-              <span class="label success">{{tag.name}}</span>
-            </label>
-          </td>
-          <td><label class="button" @click="editLink(link.id)" for="modal_1">Edit</label></td>
-        </tr>
-      </tbody>
-    </table>
-    <label for="modal_1" class="button" @click="newLink">New Link</label>
+    <div class="header">
+      <h1>Go Links</h1>
+      <p>Manage and track your short links</p>
+    </div>
+
+    <div class="search-bar">
+      <input placeholder="Search links..." @keyUp="handleSearch" v-model="searchInput" />
+      <label for="modal_1" class="button new-link-btn" @click="newLink">+ New Link</label>
+    </div>
+
+    <div class="table-container">
+      <table class="primary">
+        <thead>
+          <tr>
+            <th><button @click="onClickSort('keyword')">Keyword</button></th>
+            <th><button @click="onClickSort('destination')">Destination</button></th>
+            <th><button @click="onClickSort('description')">Description</button></th>
+            <th><button @click="onClickSort('views')">Views</button></th>
+            <th><button @click="onClickSort('tags')">Tags</button></th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="link in links" :key="link.id">
+            <td>
+              <h3><span class="label">{{link.keyword}}</span></h3>
+            </td>
+            <td>
+              <a :href="link.destination" target="_blank">{{link.destination}}</a>
+            </td>
+            <td>{{link.description}}</td>
+            <td>{{link.views}}</td>
+            <td>
+              <div class="tags-display">
+                <span v-for="tag in link.tags" :key="tag.name" class="label success">{{tag.name}}</span>
+              </div>
+            </td>
+            <td>
+              <label class="button" @click="editLink(link.id)" for="modal_1">Edit</label>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="modal">
       <input id="modal_1" type="checkbox" />
       <label for="modal_1" class="overlay"></label>
       <article>
         <header>
-          <h3>Link</h3>
+          <h3>{{ link.id ? 'Edit Link' : 'New Link' }}</h3>
           <label for="modal_1" class="close">&times;</label>
         </header>
         <section class="content">
           <fieldset class="flex two">
-            <label><input type="text" placeholder="keyword" v-model="link.keyword"></label>
-            <label><input type="text" placeholder="destination" v-model="link.destination"></label>
-          </fieldset>
-          <fieldset class="flex">
-            <label><input type="text" placeholder="description" v-model="link.description"></label>
-          </fieldset>
-          <fieldset>
-            <label><input type="text" placeholder="tags" v-model="newTagName"></label>
-            <button @click="appendTag">+</button>
-            <label v-for="tag in link.tags">
-              <span class="label">{{tag.name}}</span>
+            <label>
+              <strong>Keyword</strong>
+              <input type="text" placeholder="e.g., docs" v-model="link.keyword">
+            </label>
+            <label>
+              <strong>Destination</strong>
+              <input type="text" placeholder="https://example.com" v-model="link.destination">
             </label>
           </fieldset>
-        </section>
-        <section v-for="error in errors">
-        <span class="label warning">{{error}}</span>
+          <fieldset class="flex">
+            <label>
+              <strong>Description</strong>
+              <input type="text" placeholder="A brief description of this link" v-model="link.description">
+            </label>
+          </fieldset>
+          <fieldset>
+            <strong>Tags</strong>
+            <div class="tag-input-container">
+              <input type="text" placeholder="Add a tag" v-model="newTagName" @keyup.enter="appendTag">
+              <button @click="appendTag">Add Tag</button>
+            </div>
+            <div class="tags-display" v-if="link.tags && link.tags.length > 0">
+              <span v-for="(tag, index) in link.tags" :key="index" class="label success">{{tag.name}}</span>
+            </div>
+          </fieldset>
+          <div v-if="errors.length > 0">
+            <span v-for="(error, index) in errors" :key="index" class="label warning">{{error}}</span>
+          </div>
         </section>
         <footer>
-          <button for="modal_1" @click="saveLink(link.id)">
-            Save
+          <button class="button primary" @click="saveLink(link.id)">
+            {{ link.id ? 'Save Changes' : 'Create Link' }}
           </button>
-          <button for="modal_1" class="error" @click="deleteLink(link.id)">
+          <button v-if="link.id" class="button error" @click="deleteLink(link.id)">
             Delete
           </button>
+          <label for="modal_1" class="button">Cancel</label>
         </footer>
       </article>
     </div>
