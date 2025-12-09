@@ -54,7 +54,12 @@ func (c *AppController) UpdateTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewDecoder(r.Body).Decode(&tag)
-	c.db.Db.Save(&tag)
+	err = c.db.Db.Save(&tag).Error
+	if err != nil {
+		slog.Error("error updating tag in db", slog.Any("error", err))
+		JsonError(w, err, http.StatusBadRequest, "error updating tag")
+		return
+	}
 	JsonResponse(w, tag)
 }
 
