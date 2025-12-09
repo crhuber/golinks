@@ -38,17 +38,15 @@ func (c *AppController) GetLink(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *AppController) GetLinks(w http.ResponseWriter, r *http.Request) {
-	var order string
-	var sort string
 	var qs models.QueryString
-	inputOrder := r.URL.Query().Get("order")
-	inputSort := r.URL.Query().Get("sort")
+	order := r.URL.Query().Get("order")
+	sort := r.URL.Query().Get("sort")
 
-	if inputOrder == "" {
+	if order == "" {
 		order = "desc"
 	}
 
-	if inputSort == "" {
+	if sort == "" {
 		sort = "updated_at"
 	}
 
