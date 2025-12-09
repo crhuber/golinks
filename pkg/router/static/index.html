@@ -561,6 +561,7 @@
               this.emptyNewLink()
             })
             .catch((error) => {
+              this.errors.push(error.response.data.text)
               console.log(error);
             });
         }
