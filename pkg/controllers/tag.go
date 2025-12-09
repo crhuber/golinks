@@ -36,7 +36,12 @@ func (c *AppController) CreateTag(w http.ResponseWriter, r *http.Request) {
 		JsonError(w, err, http.StatusBadRequest, err.Error())
 		return
 	}
-	c.db.Db.Create(&tag)
+	err = c.db.Db.Create(&tag).Error
+	if err != nil {
+		slog.Error("error saving tag to db", slog.Any("error", err))
+		JsonError(w, err, http.StatusBadRequest, "error saving tag to db. tag names must be unique")
+		return
+	}
 	JsonResponse(w, tag)
 }
 
