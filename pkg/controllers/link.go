@@ -171,7 +171,8 @@ func (c *AppController) UpdateLink(w http.ResponseWriter, r *http.Request) {
 	}
 	// append tags
 	c.db.Db.Model(&oldLink).Association("Tags").Replace(&tags)
-	JsonResponse(w, oldLink)
+	newLink.Tags = tags
+	JsonResponse(w, newLink)
 }
 
 func (c *AppController) DeleteLink(w http.ResponseWriter, r *http.Request) {

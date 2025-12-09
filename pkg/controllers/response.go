@@ -21,7 +21,7 @@ func JsonResponse(w http.ResponseWriter, v any) {
 
 func JsonError(w http.ResponseWriter, err error, status int, text string) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusBadRequest)
+	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(jsonErr{Code: status, Text: text}); err != nil {
 		slog.Error("Error encoding json", slog.Any("error", err))
 	}
