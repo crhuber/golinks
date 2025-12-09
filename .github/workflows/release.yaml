@@ -3,46 +3,34 @@
 name: release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - '*'
 
 jobs:
-  release-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Unshallow
-        run: git fetch --prune --unshallow
+  release:
+      runs-on: ubuntu-latest
+      permissions:
+        contents: write
+        packages: write
+
+      steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Set up Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.24.x
-      - name: Install cross-compiler for linux/arm64
-        run: sudo apt-get -y install gcc-aarch64-linux-gnu
+          go-version: '1.24'
+
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v3.1.0
+        uses: goreleaser/goreleaser-action@v5
         with:
-          version: latest
-          args: release --config .goreleaser-linux.yaml --rm-dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  release-darwin:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Unshallow
-        run: git fetch --prune --unshallow
-      - name: Set up Go
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.24.x
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v3.1.0
-        with:
-          version: latest
-          args: release --config .goreleaser-darwin.yaml --rm-dist
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
