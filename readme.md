@@ -55,7 +55,7 @@ Use the following flags to configure database, port and static folder
 
 ```bash
 Flags:
-  -d, --db string       DB DSN or SQLLite location path. (default "./data/golinks.db")
+  -d, --db string       DB DSN or SQLLite location path. (default "~/.golinks/golinks.db")
   -t, --dbtype string   Database type (default "sqllite")
   -h, --help            help for serve
   -p, --port int        Port to run Application server on (default 8998)

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -30,6 +32,13 @@ func ServeCmd() *cobra.Command {
 			port := viper.GetInt("port")
 			dbDSN := viper.GetString("db")
 			dbType := viper.GetString("dbtype")
+			if strings.HasPrefix(dbDSN, "~/") {
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return err
+				}
+				dbDSN = filepath.Join(home, dbDSN[2:])
+			}
 
 			dbConn, err := database.NewConnection(dbType, dbDSN)
 			if err != nil {
@@ -74,7 +83,7 @@ func ServeCmd() *cobra.Command {
 	}
 	// set flags
 	serveCmd.PersistentFlags().IntP("port", "p", 8998, "Port to run Application server on")
-	serveCmd.PersistentFlags().StringP("db", "d", "./data/golinks.db", "DB DSN or SQLLite location path.")
+	serveCmd.PersistentFlags().StringP("db", "d", "~/.golinks/golinks.db", "DB DSN or SQLLite location path.")
 	serveCmd.PersistentFlags().StringP("dbtype", "t", "sqllite", "Database type")
 	// bind flags
 	viper.BindPFlag("port", serveCmd.PersistentFlags().Lookup("port"))
