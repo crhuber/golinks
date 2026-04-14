@@ -79,7 +79,6 @@
       border-radius: var(--border-radius);
       box-shadow: var(--shadow-sm);
       border: 1px solid #e2e8f0;
-      overflow: hidden;
       margin-bottom: var(--spacing-md);
     }
 
@@ -87,6 +86,7 @@
       margin: 0;
       width: 100%;
       border-collapse: collapse;
+      table-layout: fixed;
     }
 
     table.primary thead {
@@ -137,6 +137,8 @@
     table.primary tbody td {
       padding: 1rem;
       vertical-align: middle;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     table.primary tbody td h3 {
@@ -175,10 +177,10 @@
     }
 
     .button, button, label.button {
-      padding: 0.625rem 1.25rem;
+      padding: 0.4rem 0.85rem;
       border-radius: var(--border-radius);
       font-weight: 500;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       transition: all 0.2s;
       border: 1px solid #e2e8f0;
       background: white;
@@ -244,13 +246,24 @@
       padding: var(--spacing-md);
     }
 
-    .modal footer {
+    #app .modal footer {
       padding: var(--spacing-md);
       border-top: 1px solid #e2e8f0;
       background: #f8fafc;
       display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 0;
+    }
+
+    #app .modal footer button,
+    #app .modal footer label.button {
+      margin: 0 0.5rem 0 0;
+    }
+
+    #app .modal footer button.button.error {
+      margin: 0 0 0 auto;
     }
 
     fieldset {
@@ -289,16 +302,8 @@
     }
 
     .new-link-btn {
-      background: #3b82f6;
-      color: white;
-      border-color: #3b82f6;
-      padding: 0.75rem 1.5rem;
+      padding: 0.5rem 1rem;
       font-weight: 600;
-    }
-
-    .new-link-btn:hover {
-      background: #2563eb;
-      border-color: #2563eb;
     }
 
     .tag-input-container {
@@ -313,7 +318,8 @@
     }
 
     .tag-input-container button {
-      padding: 0.75rem 1rem;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
       flex-shrink: 0;
     }
 
@@ -322,6 +328,150 @@
       flex-wrap: wrap;
       gap: 0.5rem;
       margin-top: 0.5rem;
+    }
+
+    .col-destination,
+    .col-description {
+      white-space: nowrap;
+      max-width: 0;
+      font-size: 0.85rem;
+    }
+
+    .col-views {
+      font-size: 0.85rem;
+    }
+
+    .col-destination a {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.8rem;
+    }
+
+    .th-keyword { width: 12%; }
+    .th-destination { width: 30%; }
+    .th-description { width: 25%; }
+    .th-views { width: 8%; }
+    .th-tags { width: 15%; }
+    .th-actions { width: 10%; }
+
+    @media (max-width: 1024px) {
+      #app {
+        padding: 0.75rem;
+      }
+      .header {
+        padding: 0.25rem 0;
+        margin-bottom: 0.5rem;
+      }
+      .header h1 {
+        font-size: 1.2rem;
+      }
+      .header p {
+        font-size: 0.75rem;
+      }
+      .search-bar {
+        margin-bottom: 0.75rem;
+        gap: 0.5rem;
+      }
+      .search-bar input {
+        padding: 0.5rem 0.75rem;
+      }
+      table.primary thead th {
+        padding: 0.625rem;
+      }
+      table.primary tbody td {
+        padding: 0.625rem;
+      }
+      .col-description,
+      .col-views {
+        display: none;
+      }
+      .th-keyword { width: 20%; }
+      .th-destination { width: 45%; }
+      .th-tags { width: 20%; }
+      .th-actions { width: 15%; }
+    }
+
+    @media (max-width: 768px) {
+      .col-tags {
+        display: none;
+      }
+      .th-keyword { width: 25%; }
+      .th-destination { width: 55%; }
+      .th-actions { width: 20%; }
+
+      .button, button, label.button {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+      }
+
+      .modal article {
+        max-width: 95vw;
+        margin: 0.5rem;
+      }
+      .modal header {
+        padding: 0.75rem;
+      }
+      .modal header h3 {
+        font-size: 1.1rem;
+      }
+      .modal .content {
+        padding: 0.75rem;
+      }
+      .modal .content fieldset.flex.two {
+        display: block;
+      }
+      .modal .content fieldset {
+        margin-bottom: 0.5rem;
+      }
+      .modal .content fieldset input[type="text"] {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+      }
+      #app .modal footer {
+        padding: 0.75rem;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 480px) {
+      table.primary {
+        table-layout: auto;
+      }
+
+      table.primary thead {
+        display: none;
+      }
+
+      table.primary tbody tr {
+        display: block;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--border-radius);
+        background: white;
+      }
+
+      table.primary tbody td {
+        display: block;
+        padding: 0.25rem 0;
+        border-bottom: none;
+        max-width: none;
+        overflow: visible;
+        white-space: normal;
+      }
+
+      .col-destination {
+        overflow: visible;
+        white-space: normal;
+        word-break: break-all;
+      }
+
+      .col-destination a {
+        white-space: normal;
+        word-break: break-all;
+      }
     }
   </style>
 </head>
@@ -335,19 +485,19 @@
 
     <div class="search-bar">
       <input placeholder="Search links..." @keyUp="handleSearch" v-model="searchInput" />
-      <label for="modal_1" class="button new-link-btn" @click="newLink">+ New Link</label>
+      <label for="modal_1" class="button primary new-link-btn" @click="newLink">+ New Link</label>
     </div>
 
     <div class="table-container">
       <table class="primary">
         <thead>
           <tr>
-            <th><button @click="onClickSort('keyword')">Keyword</button></th>
-            <th><button @click="onClickSort('destination')">Destination</button></th>
-            <th><button @click="onClickSort('description')">Description</button></th>
-            <th><button @click="onClickSort('views')">Views</button></th>
-            <th><button @click="onClickSort('tags')">Tags</button></th>
-            <th>Actions</th>
+            <th class="th-keyword"><button @click="onClickSort('keyword')">Keyword</button></th>
+            <th class="th-destination col-destination"><button @click="onClickSort('destination')">Destination</button></th>
+            <th class="th-description col-description"><button @click="onClickSort('description')">Description</button></th>
+            <th class="th-views col-views"><button @click="onClickSort('views')">Views</button></th>
+            <th class="th-tags col-tags"><button @click="onClickSort('tags')">Tags</button></th>
+            <th class="th-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -355,12 +505,12 @@
             <td>
               <h3><span class="label">{{link.keyword}}</span></h3>
             </td>
-            <td>
-              <a :href="link.destination" target="_blank">{{link.destination}}</a>
+            <td class="col-destination">
+              <a :href="link.destination" :title="link.destination" target="_blank">{{link.destination}}</a>
             </td>
-            <td>{{link.description}}</td>
-            <td>{{link.views}}</td>
-            <td>
+            <td class="col-description" :title="link.description">{{link.description}}</td>
+            <td class="col-views">{{link.views}}</td>
+            <td class="col-tags">
               <div class="tags-display">
                 <span v-for="tag in link.tags" :key="tag.name" class="label success">{{tag.name}}</span>
               </div>
@@ -413,13 +563,13 @@
           </div>
         </section>
         <footer>
+          <label for="modal_1" class="button">Cancel</label>
           <button class="button primary" @click="saveLink(link.id)">
             {{ link.id ? 'Save Changes' : 'Create Link' }}
           </button>
           <button v-if="link.id" class="button error" @click="deleteLink(link.id)">
             Delete
           </button>
-          <label for="modal_1" class="button">Cancel</label>
         </footer>
       </article>
     </div>
