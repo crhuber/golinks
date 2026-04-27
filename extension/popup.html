@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      width: 350px;
+      color: #333;
+    }
+    .header {
+      padding: 12px;
+      background: #5e548e;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .search-box {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+    }
+    .search-box input:focus { border-color: #5e548e; }
+    .results {
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .result-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .result-item:hover { background: #eae6f2; }
+    .result-keyword {
+      font-weight: 600;
+      font-size: 13px;
+      color: #5e548e;
+    }
+    .result-desc {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .wildcard-badge {
+      font-size: 0.75em;
+      color: #888;
+      font-style: italic;
+    }
+    .empty {
+      padding: 20px 12px;
+      text-align: center;
+      color: #aaa;
+      font-size: 13px;
+    }
+    .footer {
+      padding: 8px 12px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .footer a {
+      color: #5e548e;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Golinks</h1>
+  </div>
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Search golinks..." autofocus>
+  </div>
+  <div class="results" id="results">
+    <div class="empty" id="placeholder">Type to search your golinks</div>
+  </div>
+  <div class="footer">
+    <a id="dashboard">Open Dashboard</a>
+    <a id="settings">Settings</a>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
