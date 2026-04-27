@@ -40,6 +40,12 @@ func ServeCmd() *cobra.Command {
 				dbDSN = filepath.Join(home, dbDSN[2:])
 			}
 
+			if dbType == "sqlite" {
+				if err := os.MkdirAll(filepath.Dir(dbDSN), 0755); err != nil {
+					return err
+				}
+			}
+
 			dbConn, err := database.NewConnection(dbType, dbDSN)
 			if err != nil {
 				return err
