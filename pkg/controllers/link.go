@@ -192,13 +192,48 @@ func (c *AppController) Health(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (c *AppController) SearchTags(w http.ResponseWriter, r *http.Request) {
-	input := r.URL.Query().Get("qs")
-	if input == "" {
+type SearchResult struct {
+	models.Link
+	MatchedQuery string `json:"matched_query,omitempty"`
+}
+
+func (c *AppController) SearchLinks(w http.ResponseWriter, r *http.Request) {
+	qs := r.URL.Query().Get("qs")
+	if qs == "" {
 		JsonError(w, nil, http.StatusBadRequest, "query string is required")
 		return
 	}
+
 	links := models.Links{}
-	c.db.Db.Preload("Tags").Limit(10).Where("keyword LIKE ?", fmt.Sprintf("%v%%", input)).Find(&links)
-	JsonResponse(w, links)
+	c.db.Db.Preload("Tags").Limit(10).Where("keyword LIKE ?", fmt.Sprintf("%v%%", qs)).Find(&links)
+
+	results := make([]SearchResult, 0, len(links))
+	for _, l := range links {
+		results = append(results, SearchResult{Link: l})
+	}
+
+	if strings.Contains(qs, "/") && len(results) < 10 {
+		parts := strings.SplitN(qs, "/", 2)
+		wildcardKeyword := fmt.Sprintf("%s/{*}", parts[0])
+
+		wildcardLink := models.Link{}
+		err := c.db.Db.Preload("Tags").First(&wildcardLink, "keyword = ?", wildcardKeyword).Error
+		if err == nil {
+			alreadyPresent := false
+			for _, r := range results {
+				if r.ID == wildcardLink.ID {
+					alreadyPresent = true
+					break
+				}
+			}
+			if !alreadyPresent {
+				results = append(results, SearchResult{
+					Link:         wildcardLink,
+					MatchedQuery: qs,
+				})
+			}
+		}
+	}
+
+	JsonResponse(w, results)
 }

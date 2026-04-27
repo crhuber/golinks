@@ -92,7 +92,37 @@ docker build . -t crhuber/golinks:latest
 docker run -p 8998:8998 crhuber/golinks
 ```
 
-### DNS Setup
+### Browser Extension (Recommended)
+
+The easiest way to use golinks is with the included Chrome extension. It lets you type `go/keyword` directly in your address bar — no DNS or port forwarding hacks needed.
+
+#### Install
+
+1. Open `chrome://extensions` in Chrome
+2. Enable **Developer mode** (toggle in the top right)
+3. Click **Load unpacked** and select the `extension/` directory from this repo
+
+#### Usage
+
+**Direct navigation** — Type `go/keyword` in your address bar and press Enter. The extension intercepts this and redirects through your golinks server.
+
+**Omnibox search** — Type `go` then press <kbd>Tab</kbd> (or <kbd>Space</kbd>) to activate the omnibox. Start typing a keyword to see live search suggestions from your golinks server. Select a result to navigate to it.
+
+**Popup search** — Click the extension icon to open a quick search popup with live results.
+
+#### Configuration
+
+Right-click the extension icon → **Options** (or go to `chrome://extensions` → Golinks → Details → Extension options) to configure:
+
+- **Server URL** — Address of your golinks server (default: `http://localhost:8998`)
+- **Intercept Prefix** — The keyword that triggers URL interception (default: `go`). Change this to `g`, `link`, `jump`, etc. if you prefer a different shortcut. Note: the omnibox keyword is always `go` regardless of this setting.
+
+### Alternative Setup Methods
+
+If you prefer not to use the browser extension, you can set up DNS and port forwarding manually.
+
+<details>
+<summary>DNS Setup</summary>
 
 * The automatic way: use [dev-proxy](https://github.com/crhuber/dev-proxy)
 
@@ -114,9 +144,11 @@ Search Domains:
 .internal
 ```
 
-### Port Redirection Setup
+</details>
 
-* The browser plugin way: use [Redirector](https://chromewebstore.google.com/detail/redirector/lioaeidejmlpffbndjhaameocfldlhin?hl=en) chrome browser plugin
+<details>
+<summary>Port Redirection Setup</summary>
+
 * The automatic way: use [dev-proxy](https://github.com/crhuber/dev-proxy)
 
 * The manual way:
@@ -159,6 +191,8 @@ Remove port forwarding
 ```bash
 sudo pfctl -F all -f /etc/pf.conf
 ```
+
+</details>
 
 ## FAQ
 
