@@ -1,231 +1,185 @@
 
 # Golinks
 
-Golinks is an internal URL shortener that organizes your company links into easily rememberable keywords. If you’re on the company network, you can type in <code>go/keyword</code> in your browser, and that will redirect you to the expanded url.
+Golinks is a lightweight, self-hosted URL shortener that turns short keywords into full URLs. Type `go/keyword` in your browser and get redirected instantly — no external services required.
 
-![alt text](screenshot.jpg "Screenshot")
+![alt text](screenshot.jpg “Screenshot”)
 
-## History of Golinks
+## Quickstart
 
-Benjamin Staffin at Google developed a golink system that introduced the "go/" domain and allowed Googlers to simply use the shortlink “go/link” in their browser. Benjamin described golinks as "AOL keywords for the corporate network."
+Get up and running in under a minute:
 
-## Why
 
-I developed this to scratch my own itch mostly and to learn Go. It was built intending to be run locally on localhost using a sqllite database. It is meant to be lightweight and simple. I was inspired by
-@thesephist's [tools](https://thesephist.com/posts/tools/) and the concept of [building software for yourself](https://changelog.com/podcast/455).
-The backend API is written in Go and the frontend in Vue.js as a single page app.
 
-## Setup
+Go to the [releases](https://github.com/crhuber/golinks/releases) page and download the latest binary for your platform.
 
-### Install
+Or install with [kelp](https://github.com/crhuber/kelp):
 
-Go to the [releases](https://github.com/crhuber/golinks/releases) page and download the latest release.
 
-Or, use my own tool: [kelp](https://github.com/crhuber/kelp)
+```bash
+# 1. Download the latest binary from the releases page (or use kelp)
+kelp add crhuber/golinks --install
+
+# 2. Start the server
+golinks serve
+
+# 3. Open in your browser
+open http://localhost:8998
+```
+
+That’s it. Golinks uses SQLite by default and stores everything at `~/.golinks/golinks.db` (the directory is created automatically).
+
+For the best experience, install the [Chrome extension](#browser-extension-recommended) so you can type `go/keyword` directly in your address bar.
+
+## About
+
+Inspired by Google’s internal golink system — where Benjamin Staffin introduced the “go/” domain so Googlers could use shortlinks like “go/link” (described as “AOL keywords for the corporate network”).
+
+I built this to scratch my own itch and to learn Go. It runs locally on localhost with a SQLite database, designed to be lightweight and simple. Inspired by @thesephist’s [tools](https://thesephist.com/posts/tools/) and the concept of [building software for yourself](https://changelog.com/podcast/455). The backend is written in Go, the frontend in Vue.js as a single page app.
+
+## Installation
+
+### Binary
+
+Go to the [releases](https://github.com/crhuber/golinks/releases) page and download the latest binary for your platform.
+
+Or install with [kelp](https://github.com/crhuber/kelp):
 
 ```bash
 kelp add crhuber/golinks --install
 ```
 
-### Database
-
-Setup a path where you want your golinks sqllite database to live and set the environment variable
-
-```bash
-mkdir ~/.golinks
-export GOLINKS_DB="$HOME/.golinks/golinks.db"
-```
-
-You can also use postgres or mysql database using a valid DSN like:
-
-```bash
-export GOLINKS_DBTYPE="mysql"
-export GOLINKS_DB="user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
-```
-
-### Run
-
-Run
-
-```bash
-golinks serve
-```
-
-Use the following flags to configure database, port and static folder
-
-```bash
-Flags:
-  -d, --db string       DB DSN or SQLLite location path. (default "~/.golinks/golinks.db")
-  -t, --dbtype string   Database type (default "sqllite")
-  -h, --help            help for serve
-  -p, --port int        Port to run Application server on (default 8998)
-```
-
-All the flags can also be set via environment variables
-
-```bash
-GOLINKS_DB
-GOLINKS_DBTYPE
-GOLINKS_PORT
-```
-
-### Run At Startup
-To run as an Agent on boot for mac edit and copy the `io.intra.golinks.plist` file to `~/Library/LaunchAgents`  directory.
-See [launchd.info](https://www.launchd.info/)
-
-```bash
-vi io.intra.golinks.plist
-# edit ProgramArguments to location where golinks is installed
-cp io.intra.golinks.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/io.intra.golinks.plist
-launchctl start io.intra.golinks
-tail -f /tmp/golinks.log
-tail -f /private/var/log/com.apple.xpc.launchd/launchd.log
-```
-
 ### Docker
-
-Build image and run
 
 ```bash
 docker build . -t crhuber/golinks:latest
 docker run -p 8998:8998 crhuber/golinks
 ```
 
-### Browser Extension (Recommended)
+## Configuration
+
+All configuration can be set via CLI flags, environment variables, or a `GOLINKS.toml`/`GOLINKS.yaml` config file in the working directory.
+
+| Flag | Env Variable | Default | Description |
+|------|-------------|---------|-------------|
+| `-d, --db` | `GOLINKS_DB` | `~/.golinks/golinks.db` | Database DSN or SQLite file path |
+| `-t, --dbtype` | `GOLINKS_DBTYPE` | `sqlite` | Database type: `sqlite`, `postgres`, or `mysql` |
+| `-p, --port` | `GOLINKS_PORT` | `8998` | Port to run the server on |
+
+### Using a different database
+
+By default, golinks uses SQLite with no setup required. To use PostgreSQL or MySQL instead, set the database type and DSN:
+
+```bash
+# MySQL
+export GOLINKS_DBTYPE=”mysql”
+export GOLINKS_DB=”user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local”
+
+# PostgreSQL
+export GOLINKS_DBTYPE=”postgres”
+export GOLINKS_DB=”host=localhost user=golinks password=secret dbname=golinks port=5432 sslmode=disable”
+```
+
+### Run at startup (macOS)
+
+To start golinks automatically on boot, use the included launchd plist:
+
+```bash
+# Edit the plist to set the correct path to the golinks binary
+vi io.intra.golinks.plist
+cp io.intra.golinks.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/io.intra.golinks.plist
+launchctl start io.intra.golinks
+```
+
+See [launchd.info](https://www.launchd.info/) for more details. Logs are written to `/tmp/golinks.log`.
+
+## Browser Extension (Recommended)
 
 The easiest way to use golinks is with the included Chrome extension. It lets you type `go/keyword` directly in your address bar — no DNS or port forwarding hacks needed.
 
-#### Install
+### Install
 
 1. Open `chrome://extensions` in Chrome
 2. Enable **Developer mode** (toggle in the top right)
 3. Click **Load unpacked** and select the `extension/` directory from this repo
 
-#### Usage
+### Usage
 
-**Direct navigation** — Type `go/keyword` in your address bar and press Enter. The extension intercepts this and redirects through your golinks server.
+- **Direct navigation** — Type `go/keyword` in your address bar and press Enter. The extension intercepts this and redirects through your golinks server.
+- **Omnibox search** — Type `go` then press <kbd>Tab</kbd> (or <kbd>Space</kbd>) to activate the omnibox. Start typing to see live search suggestions.
+- **Popup search** — Click the extension icon to open a quick search popup with live results.
 
-**Omnibox search** — Type `go` then press <kbd>Tab</kbd> (or <kbd>Space</kbd>) to activate the omnibox. Start typing a keyword to see live search suggestions from your golinks server. Select a result to navigate to it.
+### Extension settings
 
-**Popup search** — Click the extension icon to open a quick search popup with live results.
-
-#### Configuration
-
-Right-click the extension icon → **Options** (or go to `chrome://extensions` → Golinks → Details → Extension options) to configure:
+Right-click the extension icon and select **Options** to configure:
 
 - **Server URL** — Address of your golinks server (default: `http://localhost:8998`)
-- **Intercept Prefix** — The keyword that triggers URL interception (default: `go`). Change this to `g`, `link`, `jump`, etc. if you prefer a different shortcut. Note: the omnibox keyword is always `go` regardless of this setting.
+- **Intercept Prefix** — The keyword that triggers URL interception (default: `go`). Change this to `g`, `link`, `jump`, etc. if you prefer a different shortcut. The omnibox keyword is always `go` regardless of this setting.
 
-### Alternative Setup Methods
+## Alternative Setup (Without Extension)
 
-If you prefer not to use the browser extension, you can set up DNS and port forwarding manually.
+If you prefer not to use the browser extension, you can set up DNS and port forwarding so that `go/keyword` resolves natively in your browser.
 
 <details>
-<summary>DNS Setup</summary>
+<summary>DNS setup</summary>
 
-* The automatic way: use [dev-proxy](https://github.com/crhuber/dev-proxy)
+**Automatic:** Use [dev-proxy](https://github.com/crhuber/dev-proxy).
 
-* The manual way:
+**Manual:** Add a host record pointing to your golinks server, then add `.internal` to your search domains:
 
-Add a host record to point to your golinks server.
-If running locally,  edit your local hostfile:
-
-```
-sudo nano /etc/hosts
+```bash
+# /etc/hosts
 127.0.0.2       go.internal
 ```
 
-Add the host suffix to your search domains.
-System Preferences>Network>Advanced>DNS>Search Domains:
-
-```
-Search Domains:
-.internal
-```
+System Preferences > Network > Advanced > DNS > Search Domains: add `.internal`
 
 </details>
 
 <details>
-<summary>Port Redirection Setup</summary>
+<summary>Port redirection (so you don’t need :8998 in the URL)</summary>
 
-* The automatic way: use [dev-proxy](https://github.com/crhuber/dev-proxy)
+**Automatic:** Use [dev-proxy](https://github.com/crhuber/dev-proxy).
 
-* The manual way:
-
-If you have a local instance of golinks running on your machine, you will need to append the port everytime you want to use golinks in the browser
-ie: `go:8998/foo` which is not ideal. To get around this we can run a few hacks.
-
-Create an alias for 127.0.0.2 to point to loopback:
+**Manual:** Create a loopback alias and a port forwarding rule:
 
 ```bash
+# Create loopback alias
 sudo ifconfig lo0 alias 127.0.0.2
+
+# Persist after reboot
+sudo cp io.intra.ifconfig.plist /Library/LaunchDaemons/
+
+# Forward port 80 → 8998
+echo “rdr pass inet proto tcp from any to 127.0.0.2 port 80 -> 127.0.0.1 port 8998” | sudo pfctl -ef -
 ```
 
-To persist this after reboot, edit and copy `io.intra.ifconfig.plist` to system `LaunchDaemons`
-
-```bash
-sudo cp io.intra.ifconfig.plist  /Library/LaunchDaemons/
-```
-
-Create a port forwarding rule to forward traffic destined for `127.0.0.2:80` to be redirected to local golinks on port 8998
-
-```bash
-echo "rdr pass inet proto tcp from any to 127.0.0.2 port 80 -> 127.0.0.1 port 8998" | sudo pfctl -ef -
-```
-
-Edit hosts file to modify go.internal to point to 127.0.0.2
-
-```bash
-127.0.0.2       go.internal
-```
-
-Display current port forwarding
-
-```bash
-sudo pfctl -s nat
-```
-
-Remove port forwarding
-
-```bash
-sudo pfctl -F all -f /etc/pf.conf
-```
+To remove: `sudo pfctl -F all -f /etc/pf.conf`
 
 </details>
 
-## FAQ
+## Usage
 
-* How can I see all the links available
+### Creating links
 
-    http://go:8998/
+Open `http://localhost:8998` in your browser to view, create, and manage links through the web UI.
 
+### Programmatic links
 
-* How do programmatic links work?
-
-    Create short links that inject variables by using `{*}`. For example: `gh/{*}` to link to `https://github.com/{*}`.
-    So when a user types `gh/torvalds` the `{*}` will be replaced and the browser will be redirected to `https://github.com/torvalds`
+Create short links that inject variables by using `{*}`. For example, a link with keyword `gh` and URL `https://github.com/{*}` lets you type `go/gh/torvalds` to go directly to `https://github.com/torvalds`.
 
 ## Troubleshooting
 
-- If you change the port of the API. Be sure that you change the frontend index.html to connect to the same port
+- If you change the server port, make sure the frontend is also configured to connect to the same port.
 
 ## Developing
 
-I use [air](https://github.com/cosmtrek/air) for live reloading Go apps.
-Just run
+I use [air](https://github.com/cosmtrek/air) for live reloading during development:
 
 ```bash
-> air
-
-watching .
-building...
-running...
-INFO[0000] Starting server on port :8998
+air
 ```
-
-## Roadmap
-
 
 ## Contributing
 
