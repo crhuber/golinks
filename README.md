@@ -3,7 +3,7 @@
 
 Golinks is a lightweight, self-hosted URL shortener that turns short keywords into full URLs. Type `go/keyword` in your browser and get redirected instantly — no external services required.
 
-![alt text](screenshot.jpg “Screenshot”)
+![alt text](screenshot.jpg "Screenshot")
 
 ## Quickstart
 
