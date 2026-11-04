@@ -3,6 +3,7 @@ module crhuber/golinks
 go 1.26.0
 
 require (
+	github.com/BurntSushi/toml v1.6.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-playground/validator/v10 v10.30.6
 	github.com/rs/cors v1.11.1

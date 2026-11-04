@@ -4,7 +4,9 @@ import (
 	"context"
 	"crhuber/golinks/pkg/database"
 	"crhuber/golinks/pkg/router"
+	"errors"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/rs/cors"
 	"github.com/urfave/cli/v3"
 )
@@ -42,6 +45,12 @@ func ServeCmd() *cli.Command {
 				Usage:   "Database type",
 				Sources: cli.EnvVars("GOLINKS_DBTYPE"),
 			},
+			&cli.StringSliceFlag{
+				Name:    "cors-origins",
+				Value:   defaultCORSOrigins,
+				Usage:   "Origins allowed to call the API cross-origin; * matches any port. Replaces the default, so keep the localhost entries if you still need them.",
+				Sources: cli.EnvVars("GOLINKS_CORS_ORIGINS"),
+			},
 		},
 		Action: serveAction,
 	}
@@ -69,50 +78,106 @@ func serveAction(_ context.Context, cmd *cli.Command) error {
 	slog.Info("starting server",
 		slog.Int("port", cfg.port),
 		slog.String("dbType", cfg.dbType),
+		slog.Any("corsOrigins", cfg.corsOrigins),
 	)
-
-	// Add CORS support
-	cors := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},                                                // All origin from config file
-		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "OPTIONS", "DELETE"}, // Allowing only get, just an example
-		AllowCredentials: true,
-		AllowedHeaders:   []string{"Authorization", "Authentication", "Content-Type"}, // Allowing all headers
-		// Enable Debugging for testing, consider disabling in production
-		Debug: false,
-	})
-
-	router := router.NewRouter(dbConn)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%v", cfg.port),
-		Handler:      cors.Handler(router),
+		Handler:      withCORS(router.NewRouter(dbConn), cfg.corsOrigins),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
 	if err := srv.ListenAndServe(); err != nil {
-		slog.Error("error", slog.Any("error", err))
 		return err
 	}
 	return nil
 }
 
-type serveConfig struct {
-	port   int
-	dbDSN  string
-	dbType string
+// defaultCORSOrigins lets anything served from this machine (a dev frontend on any
+// port, a local tool) call the API, while pages from other sites stay blocked.
+var defaultCORSOrigins = []string{"http://localhost:*", "http://127.0.0.1:*"}
+
+// withCORS allows cross-origin API calls only from the listed origins. With none
+// listed it adds no CORS headers, so browsers only allow same-origin calls (the
+// built-in web UI). Don't pass an empty list to cors.New: rs/cors treats that as "*".
+func withCORS(h http.Handler, origins []string) http.Handler {
+	if len(origins) == 0 {
+		return h
+	}
+	return cors.New(cors.Options{
+		AllowedOrigins: origins,
+		AllowedMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+		AllowedHeaders: []string{"Content-Type"},
+	}).Handler(h)
 }
 
+type serveConfig struct {
+	port        int
+	dbDSN       string
+	dbType      string
+	corsOrigins []string
+}
+
+// configPath is read on every serve; a missing file is fine. Var so tests can point elsewhere.
+var configPath = "~/.config/golinks/golinks.toml"
+
+type fileConfig struct {
+	Port        *int      `toml:"port"`
+	DB          *string   `toml:"db"`
+	DBType      *string   `toml:"dbtype"`
+	CORSOrigins *[]string `toml:"cors_origins"`
+}
+
+// loadConfigFile fails loudly on a bad file: silently ignoring it would start
+// the server on the default sqlite db instead of the configured one.
+func loadConfigFile() (fileConfig, error) {
+	var fc fileConfig
+	path, err := expandHome(configPath)
+	if err != nil {
+		return fc, err
+	}
+	md, err := toml.DecodeFile(path, &fc)
+	if errors.Is(err, fs.ErrNotExist) {
+		return fc, nil
+	}
+	if err != nil {
+		return fc, fmt.Errorf("config %s: %w", path, err)
+	}
+	if u := md.Undecoded(); len(u) > 0 {
+		return fc, fmt.Errorf("config %s: unknown keys %v (want port, db, dbtype, cors_origins)", path, u)
+	}
+	return fc, nil
+}
+
+// serveConfigFrom resolves flag > env > config file > default.
 func serveConfigFrom(cmd *cli.Command) (serveConfig, error) {
-	dbDSN, err := expandHome(cmd.String("db"))
+	fc, err := loadConfigFile()
 	if err != nil {
 		return serveConfig{}, err
 	}
-	return serveConfig{
-		port:   cmd.Int("port"),
-		dbDSN:  dbDSN,
-		dbType: cmd.String("dbtype"),
-	}, nil
+	cfg := serveConfig{
+		port:        cmd.Int("port"),
+		dbDSN:       cmd.String("db"),
+		dbType:      cmd.String("dbtype"),
+		corsOrigins: cmd.StringSlice("cors-origins"),
+	}
+	if fc.CORSOrigins != nil && !cmd.IsSet("cors-origins") {
+		cfg.corsOrigins = *fc.CORSOrigins
+	}
+	if fc.Port != nil && !cmd.IsSet("port") {
+		cfg.port = *fc.Port
+	}
+	if fc.DB != nil && !cmd.IsSet("db") {
+		cfg.dbDSN = *fc.DB
+	}
+	if fc.DBType != nil && !cmd.IsSet("dbtype") {
+		cfg.dbType = *fc.DBType
+	}
+	if cfg.dbDSN, err = expandHome(cfg.dbDSN); err != nil {
+		return serveConfig{}, err
+	}
+	return cfg, nil
 }
 
 func expandHome(path string) (string, error) {

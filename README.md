@@ -58,13 +58,21 @@ docker run -p 8998:8998 crhuber/golinks
 
 ## Configuration
 
-All configuration can be set via CLI flags or `GOLINKS_*` environment variables. Flags take precedence over environment variables.
+All configuration can be set via CLI flags, `GOLINKS_*` environment variables, or a TOML file at `~/.config/golinks/golinks.toml`. Precedence: flags, then environment variables, then the config file, then defaults. A missing file is fine; a malformed file or unknown key stops startup.
+
+```toml
+# ~/.config/golinks/golinks.toml
+port = 8998
+dbtype = "postgres"
+db = "host=localhost user=golinks password=... dbname=golinks"
+```
 
 | Flag | Env Variable | Default | Description |
 |------|-------------|---------|-------------|
 | `-d, --db` | `GOLINKS_DB` | `~/.golinks/golinks.db` | Database DSN or SQLite file path |
 | `-t, --dbtype` | `GOLINKS_DBTYPE` | `sqlite` | Database type: `sqlite`, `postgres`, or `mysql` |
 | `-p, --port` | `GOLINKS_PORT` | `8998` | Port to run the server on |
+| `--cors-origins` | `GOLINKS_CORS_ORIGINS` | `http://localhost:*,http://127.0.0.1:*` | Comma-separated origins allowed to call the API cross-origin (TOML: `cors_origins = [...]`); `*` matches any port. Setting it replaces the default. The built-in web UI is same-origin and always works. |
 
 ### Using a different database
 

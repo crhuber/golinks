@@ -2,6 +2,7 @@ package database
 
 import (
 	"crhuber/golinks/pkg/models"
+	"fmt"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/mysql"
@@ -24,8 +25,10 @@ func NewConnection(dbType, dbDSN string) (*DbConnection, error) {
 		db, err = gorm.Open(postgres.Open(dbDSN), &gorm.Config{})
 	case "mysql":
 		db, err = gorm.Open(mysql.Open(dbDSN), &gorm.Config{})
-	default:
+	case "sqlite":
 		db, err = gorm.Open(sqlite.Open(dbDSN), &gorm.Config{})
+	default:
+		return nil, fmt.Errorf("unsupported dbtype %q (want sqlite, postgres or mysql)", dbType)
 	}
 
 	if err != nil {
