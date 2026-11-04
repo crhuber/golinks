@@ -84,14 +84,14 @@ func TestRoutes(t *testing.T) {
 			t.Fatalf("keyword POST status %d allow %q", keyword.Code, keyword.Header().Values("Allow"))
 		}
 
-		// HEAD is not implied by GET. A keyword HEAD must not redirect.
+		// ServeMux routes HEAD to the GET handler.
 		head := do(t, h, http.MethodHead, "/missing", "")
-		if head.Code != http.StatusMethodNotAllowed || head.Header().Get("Location") != "" {
-			t.Fatalf("keyword HEAD status %d location %q allow %q", head.Code, head.Header().Get("Location"), head.Header().Get("Allow"))
+		if head.Code != http.StatusTemporaryRedirect || head.Header().Get("Location") != "/?q=missing" {
+			t.Fatalf("keyword HEAD status %d location %q", head.Code, head.Header().Get("Location"))
 		}
 		headHealth := do(t, h, http.MethodHead, "/healthz", "")
-		if headHealth.Code != http.StatusMethodNotAllowed {
-			t.Fatalf("health HEAD status %d", headHealth.Code)
+		if headHealth.Code != http.StatusOK {
+			t.Fatalf("health HEAD status %d body %s", headHealth.Code, headHealth.Body.String())
 		}
 		headRoot := do(t, h, http.MethodHead, "/", "")
 		if headRoot.Code != http.StatusOK || headRoot.Body.Len() != 0 {
