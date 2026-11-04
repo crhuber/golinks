@@ -3,8 +3,11 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -216,7 +219,7 @@ func TestServeConfigFile(t *testing.T) {
 
 	cfg := parseServe(t)
 	want := serveConfig{port: 7000, dbDSN: filepath.Join(home, "links.db"), dbType: "postgres"}
-	if cfg != want {
+	if cfg.port != want.port || cfg.dbDSN != want.dbDSN || cfg.dbType != want.dbType {
 		t.Fatalf("file: got %+v, want %+v", cfg, want)
 	}
 
@@ -257,5 +260,62 @@ func withoutGolinksEnv(t *testing.T) {
 		t.Cleanup(func() {
 			_ = os.Setenv(key, val)
 		})
+	}
+}
+
+func TestServeCORSOriginsSources(t *testing.T) {
+	withoutGolinksEnv(t)
+	if cfg := parseServe(t); !slices.Equal(cfg.corsOrigins, defaultCORSOrigins) {
+		t.Fatalf("default corsOrigins = %v, want %v", cfg.corsOrigins, defaultCORSOrigins)
+	}
+	writeConfig(t, "cors_origins = [\"chrome-extension://abc\"]\n")
+	if cfg := parseServe(t); !slices.Equal(cfg.corsOrigins, []string{"chrome-extension://abc"}) {
+		t.Fatalf("file corsOrigins = %v", cfg.corsOrigins)
+	}
+	t.Setenv("GOLINKS_CORS_ORIGINS", "https://a.example,https://b.example")
+	if cfg := parseServe(t); !slices.Equal(cfg.corsOrigins, []string{"https://a.example", "https://b.example"}) {
+		t.Fatalf("env corsOrigins = %v", cfg.corsOrigins)
+	}
+}
+
+func TestWithCORS(t *testing.T) {
+	ok := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {})
+	preflight := func(h http.Handler, origin string) string {
+		r := httptest.NewRequest(http.MethodOptions, "/api/v1/link/1", nil)
+		r.Header.Set("Origin", origin)
+		r.Header.Set("Access-Control-Request-Method", http.MethodDelete)
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w.Header().Get("Access-Control-Allow-Origin")
+	}
+
+	if got := preflight(withCORS(ok, nil), "https://evil.example"); got != "" {
+		t.Fatalf("default: evil origin allowed (%q)", got)
+	}
+	h := withCORS(ok, []string{"https://good.example"})
+	if got := preflight(h, "https://good.example"); got != "https://good.example" {
+		t.Fatalf("listed origin: got %q", got)
+	}
+	if got := preflight(h, "https://evil.example"); got != "" {
+		t.Fatalf("unlisted origin allowed (%q)", got)
+	}
+}
+
+func TestDefaultCORSAllowsLocalOnly(t *testing.T) {
+	h := withCORS(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}), defaultCORSOrigins)
+	for origin, allowed := range map[string]bool{
+		"http://localhost:3000":         true,
+		"http://127.0.0.1:5173":         true,
+		"https://evil.example":          false,
+		"http://localhost.evil.example": false,
+	} {
+		r := httptest.NewRequest(http.MethodOptions, "/api/v1/link/1", nil)
+		r.Header.Set("Origin", origin)
+		r.Header.Set("Access-Control-Request-Method", http.MethodDelete)
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		if got := w.Header().Get("Access-Control-Allow-Origin") != ""; got != allowed {
+			t.Errorf("%s: allowed=%v, want %v", origin, got, allowed)
+		}
 	}
 }

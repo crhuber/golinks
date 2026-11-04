@@ -72,6 +72,7 @@ db = "host=localhost user=golinks password=... dbname=golinks"
 | `-d, --db` | `GOLINKS_DB` | `~/.golinks/golinks.db` | Database DSN or SQLite file path |
 | `-t, --dbtype` | `GOLINKS_DBTYPE` | `sqlite` | Database type: `sqlite`, `postgres`, or `mysql` |
 | `-p, --port` | `GOLINKS_PORT` | `8998` | Port to run the server on |
+| `--cors-origins` | `GOLINKS_CORS_ORIGINS` | `http://localhost:*,http://127.0.0.1:*` | Comma-separated origins allowed to call the API cross-origin (TOML: `cors_origins = [...]`); `*` matches any port. Setting it replaces the default. The built-in web UI is same-origin and always works. |
 
 ### Using a different database
 
