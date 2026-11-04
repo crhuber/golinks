@@ -108,10 +108,18 @@ func TestRoutes(t *testing.T) {
 		if icon.Code != http.StatusOK || icon.Body.Len() == 0 {
 			t.Fatalf("favicon status %d len %d", icon.Code, icon.Body.Len())
 		}
-		// File routes were registered for every method, not only GET.
+		headIcon := do(t, h, http.MethodHead, "/favicon.ico", "")
+		if headIcon.Code != http.StatusOK || headIcon.Body.Len() != 0 {
+			t.Fatalf("favicon HEAD status %d len %d", headIcon.Code, headIcon.Body.Len())
+		}
+		// POST does not reach the file server. The literal GET pattern wins
+		// over /{keyword}, so this is 405 rather than a keyword redirect.
 		postIcon := do(t, h, http.MethodPost, "/favicon.ico", "")
-		if postIcon.Code != http.StatusOK || postIcon.Body.Len() == 0 {
-			t.Fatalf("post favicon status %d len %d", postIcon.Code, postIcon.Body.Len())
+		if postIcon.Code != http.StatusMethodNotAllowed || postIcon.Header().Get("Location") != "" {
+			t.Fatalf("post favicon status %d location %q allow %q body %q", postIcon.Code, postIcon.Header().Get("Location"), postIcon.Header().Get("Allow"), postIcon.Body.String())
+		}
+		if !strings.Contains(postIcon.Header().Get("Allow"), http.MethodGet) {
+			t.Fatalf("post favicon Allow %q", postIcon.Header().Get("Allow"))
 		}
 		postRoot := do(t, h, http.MethodPost, "/", "")
 		if postRoot.Code != http.StatusOK || !bytes.Contains(postRoot.Body.Bytes(), []byte("<title>Links</title>")) {

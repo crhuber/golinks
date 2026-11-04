@@ -45,22 +45,8 @@ func NewRouter(db *database.DbConnection) http.Handler {
 	//
 	mux.HandleFunc("GET /healthz", getOnly(ac.Health))
 	fileServer := http.FileServer(http.FS(serverRoot))
-	// An all-method "/favicon.ico" overlaps GET /{keyword}: the literal path
-	// is more specific, but it matches more methods, so ServeMux treats the
-	// pair as a conflict. Register each method chi's Handle covered. GET also
-	// matches HEAD, and an explicit HEAD pattern would conflict the same way.
-	for _, method := range []string{
-		http.MethodConnect,
-		http.MethodDelete,
-		http.MethodGet,
-		http.MethodOptions,
-		http.MethodPatch,
-		http.MethodPost,
-		http.MethodPut,
-		http.MethodTrace,
-	} {
-		mux.Handle(method+" /favicon.ico", fileServer)
-	}
+	// GET also matches HEAD. Other methods 405 instead of serving the file.
+	mux.Handle("GET /favicon.ico", fileServer)
 	// {$} is an exact match for "/". A bare "/" pattern is a catch-all and
 	// would swallow keyword redirects.
 	mux.Handle("/{$}", fileServer)
