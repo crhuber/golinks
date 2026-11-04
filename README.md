@@ -58,7 +58,7 @@ docker run -p 8998:8998 crhuber/golinks
 
 ## Configuration
 
-All configuration can be set via CLI flags, environment variables, or a `GOLINKS.toml`/`GOLINKS.yaml` config file in the working directory.
+All configuration can be set via CLI flags or `GOLINKS_*` environment variables. Flags take precedence over environment variables.
 
 | Flag | Env Variable | Default | Description |
 |------|-------------|---------|-------------|
