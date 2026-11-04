@@ -6,8 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
-
-	"github.com/go-chi/chi/v5"
 )
 
 func (c *AppController) updateViewCount(link *models.Link) {
@@ -17,8 +15,8 @@ func (c *AppController) updateViewCount(link *models.Link) {
 
 func (c *AppController) GetKeyword(w http.ResponseWriter, r *http.Request) {
 	link := models.Link{}
-	keyword := chi.URLParam(r, "keyword")
-	subkey := chi.URLParam(r, "subkey")
+	keyword := r.PathValue("keyword")
+	subkey := r.PathValue("subkey")
 	// hack to match urls like foo/bar work
 	if subkey != "" {
 		keyword = fmt.Sprintf("%s/%s", keyword, subkey)

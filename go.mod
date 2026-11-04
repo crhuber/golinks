@@ -6,7 +6,6 @@ toolchain go1.24.1
 
 require (
 	github.com/glebarez/sqlite v1.11.0
-	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/rs/cors v1.8.2
 	github.com/spf13/cobra v1.5.0

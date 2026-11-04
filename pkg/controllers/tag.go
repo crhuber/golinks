@@ -5,13 +5,11 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-
-	"github.com/go-chi/chi/v5"
 )
 
 // anything of type tag controller has these functions available
 func (c *AppController) GetTag(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 	tag := models.Tag{}
 	err := c.db.Db.First(&tag, id).Error
 	if err != nil {
@@ -46,7 +44,7 @@ func (c *AppController) CreateTag(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *AppController) UpdateTag(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 	tag := models.Tag{}
 	err := c.db.Db.First(&tag, id).Error
 	if err != nil {
@@ -64,7 +62,7 @@ func (c *AppController) UpdateTag(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *AppController) DeleteTag(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 	tag := models.Tag{}
 	err := c.db.Db.Unscoped().Delete(&tag, id).Error
 	if err != nil {

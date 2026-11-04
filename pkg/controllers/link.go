@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/go-chi/chi/v5"
 )
 
 type AppController struct {
@@ -27,7 +25,7 @@ func NewAppController(db *database.DbConnection) *AppController {
 
 // anything of type link controller has these functions available
 func (c *AppController) GetLink(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 	link := models.Link{}
 	err := c.db.Db.Preload("Tags").First(&link, id).Error
 	if err != nil {
@@ -119,7 +117,7 @@ func (c *AppController) CreateLink(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *AppController) UpdateLink(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 	ic := models.LinkInput{}
 	json.NewDecoder(r.Body).Decode(&ic)
 
@@ -174,7 +172,7 @@ func (c *AppController) UpdateLink(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *AppController) DeleteLink(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 	link := models.Link{}
 	err := c.db.Db.Unscoped().Delete(&link, id).Error
 	if err != nil {
