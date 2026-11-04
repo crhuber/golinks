@@ -15,5 +15,6 @@ func main() {
 
 	if err := cmd.RootCmd(Version).Run(context.Background(), os.Args); err != nil {
 		slog.Error("error", slog.Any("error", err))
+		os.Exit(1)
 	}
 }

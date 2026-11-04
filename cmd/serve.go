@@ -91,7 +91,6 @@ func serveAction(_ context.Context, cmd *cli.Command) error {
 	}
 
 	if err := srv.ListenAndServe(); err != nil {
-		slog.Error("error", slog.Any("error", err))
 		return err
 	}
 	return nil
