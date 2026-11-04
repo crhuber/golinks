@@ -3,8 +3,6 @@ package models
 import (
 	"database/sql"
 	"time"
-
-	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 type Tag struct {
@@ -12,12 +10,9 @@ type Tag struct {
 	CreatedAt time.Time    `json:"-"`
 	UpdatedAt time.Time    `json:"-"`
 	DeletedAt sql.NullTime `json:"-" gorm:"index"`
-	Name      string       `json:"name" gorm:"unique"`
+	Name      string       `json:"name" gorm:"unique" validate:"required,min=3,max=20"`
 }
 
 func (t Tag) Validate() error {
-	return validation.ValidateStruct(&t,
-		// Name cannot be empty, and the length must be between 3 and 20.
-		validation.Field(&t.Name, validation.Required, validation.Length(3, 20)),
-	)
+	return validate.Struct(t)
 }

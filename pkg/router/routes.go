@@ -7,8 +7,6 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
-
-	"github.com/go-chi/chi/v5"
 )
 
 // This "go:embed" directive tells Go to embed static/* (recursively),
@@ -17,7 +15,7 @@ import (
 //go:embed static/*
 var staticFS embed.FS
 
-func NewRouter(db *database.DbConnection) *chi.Mux {
+func NewRouter(db *database.DbConnection) http.Handler {
 
 	// server files from static folder
 	serverRoot, err := fs.Sub(staticFS, "static")
@@ -28,26 +26,31 @@ func NewRouter(db *database.DbConnection) *chi.Mux {
 	// link controller takes in a pointer to the db
 	ac := controllers.NewAppController(db)
 
-	router := chi.NewRouter()
+	mux := http.NewServeMux()
 	// routes links
-	router.Use(ac.LogRequest)
-	router.Get("/api/v1/links", ac.GetLinks)
-	router.Post("/api/v1/links", ac.CreateLink)
-	router.Get("/api/v1/link/{id}", ac.GetLink)
-	router.Delete("/api/v1/link/{id}", ac.DeleteLink)
-	router.Patch("/api/v1/link/{id}", ac.UpdateLink)
-	router.Get("/api/v1/search", ac.SearchLinks)
+	mux.HandleFunc("GET /api/v1/links", ac.GetLinks)
+	mux.HandleFunc("POST /api/v1/links", ac.CreateLink)
+	mux.HandleFunc("GET /api/v1/link/{id}", ac.GetLink)
+	mux.HandleFunc("DELETE /api/v1/link/{id}", ac.DeleteLink)
+	mux.HandleFunc("PATCH /api/v1/link/{id}", ac.UpdateLink)
+	mux.HandleFunc("GET /api/v1/search", ac.SearchLinks)
 	// tags
-	router.Get("/api/v1/tags", ac.GetTags)
-	router.Post("/api/v1/tags", ac.CreateTag)
-	router.Get("/api/v1/tag/{id}", ac.GetTag)
-	router.Delete("/api/v1/tag/{id}", ac.DeleteTag)
-	router.Patch("/api/v1/tag/{id}", ac.UpdateTag)
+	mux.HandleFunc("GET /api/v1/tags", ac.GetTags)
+	mux.HandleFunc("POST /api/v1/tags", ac.CreateTag)
+	mux.HandleFunc("GET /api/v1/tag/{id}", ac.GetTag)
+	mux.HandleFunc("DELETE /api/v1/tag/{id}", ac.DeleteTag)
+	mux.HandleFunc("PATCH /api/v1/tag/{id}", ac.UpdateTag)
 	//
-	router.Get("/healthz", ac.Health)
-	router.Handle("/favicon.ico", http.FileServer(http.FS(serverRoot)))
-	router.Get("/{keyword}", ac.GetKeyword)
-	router.HandleFunc("/{keyword}/{subkey}", ac.GetKeyword)
-	router.Handle("/", http.FileServer(http.FS(serverRoot)))
-	return router
+	mux.HandleFunc("GET /healthz", ac.Health)
+	fileServer := http.FileServer(http.FS(serverRoot))
+	// GET also matches HEAD. Other methods 405 instead of serving the file.
+	mux.Handle("GET /favicon.ico", fileServer)
+	// {$} is an exact match for "/". A bare "/" pattern is a catch-all and
+	// would swallow keyword redirects.
+	mux.Handle("/{$}", fileServer)
+	mux.HandleFunc("GET /{keyword}", ac.GetKeyword)
+	// Any method, matching the previous HandleFunc registration.
+	mux.HandleFunc("/{keyword}/{subkey}", ac.GetKeyword)
+	// LogRequest previously wrapped every route, including 404 and 405.
+	return ac.LogRequest(mux)
 }
