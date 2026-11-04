@@ -162,6 +162,19 @@ func TestEnsureDBDir(t *testing.T) {
 
 func parseServe(t *testing.T, args ...string) serveConfig {
 	t.Helper()
+	cfg, err := tryParseServe(t, args...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return cfg
+}
+
+// tryParseServe isolates tests from the real ~/.config file unless a test set configPath itself.
+func tryParseServe(t *testing.T, args ...string) (serveConfig, error) {
+	t.Helper()
+	if configPath == realConfigPath {
+		useConfigFile(t, filepath.Join(t.TempDir(), "absent.toml"))
+	}
 	root := RootCmd("test")
 	serve := root.Command("serve")
 	if serve == nil {
@@ -174,10 +187,61 @@ func parseServe(t *testing.T, args ...string) serveConfig {
 		return err
 	}
 	argv := append([]string{"golinks", "serve"}, args...)
-	if err := root.Run(context.Background(), argv); err != nil {
+	err := root.Run(context.Background(), argv)
+	return cfg, err
+}
+
+var realConfigPath = configPath
+
+func useConfigFile(t *testing.T, path string) {
+	t.Helper()
+	configPath = path
+	t.Cleanup(func() { configPath = realConfigPath })
+}
+
+func writeConfig(t *testing.T, body string) {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "golinks.toml")
+	if err := os.WriteFile(path, []byte(body), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	return cfg
+	useConfigFile(t, path)
+}
+
+func TestServeConfigFile(t *testing.T) {
+	withoutGolinksEnv(t)
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	writeConfig(t, "port = 7000\ndb = \"~/links.db\"\ndbtype = \"postgres\"\n")
+
+	cfg := parseServe(t)
+	want := serveConfig{port: 7000, dbDSN: filepath.Join(home, "links.db"), dbType: "postgres"}
+	if cfg != want {
+		t.Fatalf("file: got %+v, want %+v", cfg, want)
+	}
+
+	// env beats file, flag beats env
+	t.Setenv("GOLINKS_PORT", "7100")
+	cfg = parseServe(t, "--dbtype", "mysql")
+	if cfg.port != 7100 || cfg.dbType != "mysql" || cfg.dbDSN != want.dbDSN {
+		t.Fatalf("precedence: got %+v", cfg)
+	}
+}
+
+func TestServeConfigFileErrors(t *testing.T) {
+	withoutGolinksEnv(t)
+	for name, body := range map[string]string{
+		"malformed":   "port = \n",
+		"unknown key": "dbype = \"postgres\"\n",
+		"wrong type":  "port = \"8998\"\n",
+	} {
+		t.Run(name, func(t *testing.T) {
+			writeConfig(t, body)
+			if _, err := tryParseServe(t); err == nil {
+				t.Fatal("expected error")
+			}
+		})
+	}
 }
 
 func withoutGolinksEnv(t *testing.T) {

@@ -58,7 +58,14 @@ docker run -p 8998:8998 crhuber/golinks
 
 ## Configuration
 
-All configuration can be set via CLI flags or `GOLINKS_*` environment variables. Flags take precedence over environment variables.
+All configuration can be set via CLI flags, `GOLINKS_*` environment variables, or a TOML file at `~/.config/golinks/golinks.toml`. Precedence: flags, then environment variables, then the config file, then defaults. A missing file is fine; a malformed file or unknown key stops startup.
+
+```toml
+# ~/.config/golinks/golinks.toml
+port = 8998
+dbtype = "postgres"
+db = "host=localhost user=golinks password=... dbname=golinks"
+```
 
 | Flag | Env Variable | Default | Description |
 |------|-------------|---------|-------------|

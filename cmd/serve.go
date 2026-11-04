@@ -4,7 +4,9 @@ import (
 	"context"
 	"crhuber/golinks/pkg/database"
 	"crhuber/golinks/pkg/router"
+	"errors"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/rs/cors"
 	"github.com/urfave/cli/v3"
 )
@@ -102,16 +105,60 @@ type serveConfig struct {
 	dbType string
 }
 
+// configPath is read on every serve; a missing file is fine. Var so tests can point elsewhere.
+var configPath = "~/.config/golinks/golinks.toml"
+
+type fileConfig struct {
+	Port   *int    `toml:"port"`
+	DB     *string `toml:"db"`
+	DBType *string `toml:"dbtype"`
+}
+
+// loadConfigFile fails loudly on a bad file: silently ignoring it would start
+// the server on the default sqlite db instead of the configured one.
+func loadConfigFile() (fileConfig, error) {
+	var fc fileConfig
+	path, err := expandHome(configPath)
+	if err != nil {
+		return fc, err
+	}
+	md, err := toml.DecodeFile(path, &fc)
+	if errors.Is(err, fs.ErrNotExist) {
+		return fc, nil
+	}
+	if err != nil {
+		return fc, fmt.Errorf("config %s: %w", path, err)
+	}
+	if u := md.Undecoded(); len(u) > 0 {
+		return fc, fmt.Errorf("config %s: unknown keys %v (want port, db, dbtype)", path, u)
+	}
+	return fc, nil
+}
+
+// serveConfigFrom resolves flag > env > config file > default.
 func serveConfigFrom(cmd *cli.Command) (serveConfig, error) {
-	dbDSN, err := expandHome(cmd.String("db"))
+	fc, err := loadConfigFile()
 	if err != nil {
 		return serveConfig{}, err
 	}
-	return serveConfig{
+	cfg := serveConfig{
 		port:   cmd.Int("port"),
-		dbDSN:  dbDSN,
+		dbDSN:  cmd.String("db"),
 		dbType: cmd.String("dbtype"),
-	}, nil
+	}
+	if fc.Port != nil && !cmd.IsSet("port") {
+		cfg.port = *fc.Port
+	}
+	if fc.DB != nil && !cmd.IsSet("db") {
+		cfg.dbDSN = *fc.DB
+	}
+	if fc.DBType != nil && !cmd.IsSet("dbtype") {
+		cfg.dbType = *fc.DBType
+	}
+	if cfg.dbDSN, err = expandHome(cfg.dbDSN); err != nil {
+		return serveConfig{}, err
+	}
+	return cfg, nil
 }
 
 func expandHome(path string) (string, error) {
