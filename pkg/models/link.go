@@ -2,19 +2,14 @@ package models
 
 import (
 	"database/sql"
-	"errors"
-	"regexp"
 	"strings"
 	"time"
-
-	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/go-ozzo/ozzo-validation/is"
 )
 
 type LinkInput struct {
-	Keyword     string `json:"keyword"`
+	Keyword     string `json:"keyword" validate:"required,min=1,max=100,ne=api,ne=static,ne=directory,ne=healthz,ne=favicon.ico,keywordfmt"`
 	Description string `json:"description"`
-	Destination string `json:"destination"`
+	Destination string `json:"destination" validate:"required,http_url"`
 	Views       int    `json:"views"`
 	Tags        []Tag  `json:"tags"`
 }
@@ -31,30 +26,9 @@ type Link struct {
 	Tags        []Tag        `json:"tags" gorm:"many2many:link_tags;"`
 }
 
-func hasScheme(value interface{}) error {
-	s, _ := value.(string)
-	if !(strings.HasPrefix(s, "http:") || strings.HasPrefix(s, "https:")) {
-		return errors.New("requires scheme http or https")
-	}
-	return nil
-}
-
 // TODO Put in validation for programtic links gh/%s
 func (l LinkInput) Validate() error {
-	return validation.ValidateStruct(&l,
-		// Name cannot be empty, and the length must be between 3 and 20.
-		// Regex for keyword https://regex101.com/r/HetwqX/1
-		validation.Field(&l.Keyword,
-			validation.Required,
-			validation.Length(1, 100),
-			validation.NotIn("api", "static", "directory", "healthz", "favicon.ico"),
-			validation.Match(regexp.MustCompile(`^([a-zA-Z0-9\-\/]+)`))),
-		validation.Field(&l.Destination,
-			validation.Required,
-			is.URL,
-			validation.By(hasScheme),
-		),
-	)
+	return validate.Struct(l)
 }
 
 func (li *LinkInput) ToNative() Link {
@@ -67,15 +41,12 @@ func (li *LinkInput) ToNative() Link {
 }
 
 type QueryString struct {
-	Sort  string
-	Order string
+	Sort  string `validate:"omitempty,lettersfmt"`
+	Order string `validate:"omitempty,lettersfmt"`
 }
 
 func (qs QueryString) Validate() error {
-	return validation.ValidateStruct(&qs,
-		validation.Field(&qs.Sort, validation.Match(regexp.MustCompile(`^([a-zA-Z]+)`))),
-		validation.Field(&qs.Order, validation.Match(regexp.MustCompile(`^([a-zA-Z]+)`))),
-	)
+	return validate.Struct(qs)
 }
 
 type Links []Link
