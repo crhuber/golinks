@@ -8,18 +8,19 @@ require (
 	github.com/go-playground/validator/v10 v10.30.6
 	github.com/rs/cors v1.11.1
 	github.com/urfave/cli/v3 v3.14.0
-	gorm.io/driver/mysql v1.3.6
+	gorm.io/driver/mysql v1.6.0
 	gorm.io/driver/postgres v1.3.9
 	gorm.io/gorm v1.31.2
 )
 
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.16 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/go-playground/locales v0.14.2 // indirect
 	github.com/go-playground/universal-translator v0.18.2 // indirect
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
+	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.3 // indirect
