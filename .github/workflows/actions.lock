@@ -5,8 +5,9 @@ version: 'v0.0.3'
 workflows:
     '.github/workflows/codeql-analysis.yml':
         - 'actions/checkout@v3.7.0'
-        - 'actions/checkout@v4.4.0'
         - 'github/codeql-action@v2'
+    '.github/workflows/lockfile.yml':
+        - 'actions/checkout@v4.4.0'
     '.github/workflows/release.yaml':
         - 'actions/checkout@v4.4.0'
         - 'actions/setup-go@v7.0.0'
